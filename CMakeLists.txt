@@ -17,6 +17,8 @@ add_executable(cppRenderer main.cpp
         Camera.cpp
         Camera.h
         InputState.h
+        Renderer.cpp
+        Renderer.h
 )
 
 # Link GLAD and GLFW

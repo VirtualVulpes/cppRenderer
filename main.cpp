@@ -11,50 +11,29 @@
 #include "stb_image.h"
 #include "Camera.h"
 #include "InputState.h"
+#include "Renderer.h"
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
-void mouse_callback(GLFWwindow* window, double xPosIn, double yPosIn);
-void scroll_callback(GLFWwindow* window, double xOffset, double yOffset);
+void mouseCallback(GLFWwindow* window, double xPosIn, double yPosIn);
+void scrollCallback(GLFWwindow* window, double xOffset, double yOffset);
 
 // settings
-const unsigned int SCR_WIDTH { 800 };
-const unsigned int SCR_HEIGHT { 800 };
-
-float lastX { SCR_WIDTH / 2.0f };
-float lastY { SCR_HEIGHT / 2.0f };
-bool firstMouse { true };
-
 Camera camera{glm::vec3(0, 0, 5), 0.0, -90.0};
+
+float lastX { 0.0 };
+float lastY { 0.0 };
+bool firstMouse { true };
 
 float deltaTime { 0.0f };
 float lastFrame { 0.0f };
 
 int main()
 {
-    // glfw: initialize and configure
-    // ------------------------------
-    glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-    // glfw window creation
-    // --------------------
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", nullptr, nullptr);
-    if (window == nullptr)
-    {
-        std::cout << "Failed to create GLFW window" << std::endl;
-        glfwTerminate();
-        return -1;
-    }
-    glfwMakeContextCurrent(window);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    glfwSetCursorPosCallback(window, mouse_callback);
-    glfwSetScrollCallback(window, scroll_callback);
-
+    Renderer renderer {};
+    renderer.createWindow(800, 600);
+    glfwSetCursorPosCallback(renderer.getWindow(), mouseCallback);
+    glfwSetScrollCallback(renderer.getWindow(), scrollCallback);
     // glad: load all OpenGL function pointers
     // ---------------------------------------
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -201,7 +180,7 @@ int main()
 
     glEnable(GL_DEPTH_TEST);
 
-    while (!glfwWindowShouldClose(window))
+    while (!glfwWindowShouldClose(renderer.getWindow()))
     {
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
@@ -209,7 +188,7 @@ int main()
 
         // input
         // -----
-        processInput(window);
+        processInput(renderer.getWindow());
 
         // render
         // ------
@@ -224,7 +203,7 @@ int main()
         shader.use();
 
         int projectionLoc = glGetUniformLocation(shader.ID, "projection");
-        glm::mat4 projection = glm::perspective(glm::radians(45.0f), static_cast<float>(SCR_WIDTH) / SCR_HEIGHT, 0.1f, 100.f);
+        glm::mat4 projection = glm::perspective(glm::radians(45.0f), static_cast<float>(renderer.getWidth()) / renderer.getHeight(), 0.1f, 100.f);
 
         shader.setMat4("view", camera.getViewMatrix());
 
@@ -242,7 +221,7 @@ int main()
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
 
-        glfwSwapBuffers(window);
+        glfwSwapBuffers(renderer.getWindow());
         glfwPollEvents();
     }
 
@@ -254,12 +233,8 @@ int main()
     return 0;
 }
 
-void framebuffer_size_callback(GLFWwindow* window, const int width, const int height)
-{
-    glViewport(0, 0, width, height);
-}
 
-void mouse_callback(GLFWwindow* window, const double xPosIn, const double yPosIn)
+void mouseCallback(GLFWwindow* window, const double xPosIn, const double yPosIn)
 {
     const float xPos { static_cast<float>(xPosIn) };
     const float yPos { static_cast<float>(yPosIn) };
@@ -280,7 +255,7 @@ void mouse_callback(GLFWwindow* window, const double xPosIn, const double yPosIn
     //camera.ProcessMouseMovement(xOffset, yOffset);
 }
 
-void scroll_callback(GLFWwindow* window, double xOffset, double yOffset)
+void scrollCallback(GLFWwindow* window, double xOffset, double yOffset)
 {
 
 }
