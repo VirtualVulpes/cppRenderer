@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(renderer)
+project(cppRenderer)
 
 set(CMAKE_CXX_STANDARD 20)
 
@@ -11,8 +11,8 @@ target_include_directories(glad PUBLIC external/glad/include)
 add_subdirectory(external/glfw)
 
 # Executable
-add_executable(untitled main.cpp
-        SHADER.h
+add_executable(cppRenderer main.cpp
+        shader.h
         stb_image_impl.cpp
         Camera.cpp
         Camera.h
@@ -20,7 +20,7 @@ add_executable(untitled main.cpp
 )
 
 # Link GLAD and GLFW
-target_link_libraries(untitled PRIVATE glad glfw)
+target_link_libraries(cppRenderer PRIVATE glad glfw)
 
 # GLM
-target_include_directories(untitled PRIVATE external)
+target_include_directories(cppRenderer PRIVATE external)
