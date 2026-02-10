@@ -15,6 +15,8 @@ public:
     InputState getInput(const Window& window);
     InputState::Keys getKeyInput(const Window& window);
     InputState::Mouse getMouseInput(const Window& window);
+private:
+    InputState m_prevInput {};
 };
 
 

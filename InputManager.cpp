@@ -15,7 +15,7 @@ InputState InputManager::getInput(const Window& window)
 {
     InputState input {};
     input.keys = getKeyInput(window);
-    //input.mouse = updateMouseInput(window.nativeHandle());
+    input.mouse = getMouseInput(window);
 
     return input;
 }
@@ -37,13 +37,18 @@ InputState::Mouse InputManager::getMouseInput(const Window& window)
 {
     GLFWwindow* windowHandle = window.nativeHandle();
 
-    double* xPos {};
-    double* yPos {};
-    glfwGetCursorPos(windowHandle, xPos, yPos);
+    double xPos {};
+    double yPos {};
+    glfwGetCursorPos(windowHandle, &xPos, &yPos);
 
     InputState::Mouse input {};
-    input.xPos = *xPos;
-    input.yPos = *yPos;
+
+    input.xLast = m_prevInput.mouse.xPos;
+    input.yLast = m_prevInput.mouse.yPos;
+    input.xPos = xPos;
+    input.yPos = yPos;
+    m_prevInput.mouse.xPos = xPos;
+    m_prevInput.mouse.yPos = yPos;
 
     return input;
 }

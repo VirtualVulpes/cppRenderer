@@ -4,8 +4,9 @@
 
 #ifndef UNTITLED_INPUTSTATE_H
 #define UNTITLED_INPUTSTATE_H
-struct InputState
+class InputState
 {
+public:
     struct Keys
     {
         bool forward  { false };
@@ -19,9 +20,9 @@ struct InputState
     struct Mouse
     {
         float xPos {0};
-        float xOffset {0};
+        float xLast {0};
         float yPos {0};
-        float yOffset {0};
+        float yLast {0};
     };
     Mouse mouse;
 };

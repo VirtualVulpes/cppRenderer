@@ -198,8 +198,6 @@ int main()
         camera.processInput(input, deltaTime);
         if (input.keys.escape) window.close();
 
-        std::cout << input.mouse.xPos << '\n';
-
         // render
         // ------
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);

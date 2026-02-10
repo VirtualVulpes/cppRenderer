@@ -4,6 +4,8 @@
 
 #include "Camera.h"
 
+#include <iostream>
+
 #include "InputState.h"
 #include "glm/gtc/matrix_transform.hpp"
 
@@ -20,17 +22,35 @@ glm::mat4 Camera::getViewMatrix() const
     return glm::lookAt(m_pos, m_pos + m_front, m_up);
 }
 
-void Camera::processInput(const InputState& state, float deltaTime)
+void Camera::processInput(const InputState& input, float deltaTime)
+{
+    moveCamera(input.keys, deltaTime);
+    rotateCamera(input.mouse, deltaTime);
+}
+
+void Camera::moveCamera(const InputState::Keys& input, float deltaTime)
 {
     glm::vec3 movement {};
 
-    if (state.keys.forward)  movement += m_front;
-    if (state.keys.backward) movement -= m_front;
-    if (state.keys.right)    movement += m_right;
-    if (state.keys.left)     movement -= m_right;
+    if (input.forward)  movement += m_front;
+    if (input.backward) movement -= m_front;
+    if (input.right)    movement += m_right;
+    if (input.left)     movement -= m_right;
 
     if (glm::length(movement) > 0.0f)
         m_pos += glm::normalize(movement) * deltaTime * m_speed;
+}
+
+void Camera::rotateCamera(const InputState::Mouse& input, float deltaTime)
+{
+    float xOffset = input.xPos - input.xLast;
+    float yOffset = input.yPos - input.yLast;
+
+    std::cout << input.xPos << ": " << input.xLast << '\n';
+
+    m_yaw += xOffset * deltaTime * m_sensitivity;
+    m_pitch -= yOffset * deltaTime * m_sensitivity;
+    updateCameraVectors();
 }
 
 void Camera::updateCameraVectors()
