@@ -6,9 +6,24 @@
 #define UNTITLED_INPUTSTATE_H
 struct InputState
 {
-    bool forward  { false };
-    bool backward { false };
-    bool right    { false };
-    bool left     { false };
+    struct Keys
+    {
+        bool forward  { false };
+        bool backward { false };
+        bool right    { false };
+        bool left     { false };
+        bool escape   { false };
+    };
+    Keys keys;
+
+    struct Mouse
+    {
+        float xPos {0};
+        float xOffset {0};
+        float yPos {0};
+        float yOffset {0};
+    };
+    Mouse mouse;
 };
+
 #endif //UNTITLED_INPUTSTATE_H

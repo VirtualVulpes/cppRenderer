@@ -31,6 +31,21 @@ Window::Window(int width, int height, std::string_view title)
     glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
+Window::~Window()
+{
+    glfwTerminate();
+}
+
+void Window::setActive()
+{
+    glfwMakeContextCurrent(m_window);
+}
+
+void Window::close()
+{
+    glfwSetWindowShouldClose(m_window, true);
+}
+
 void Window::framebufferSizeCallback(GLFWwindow* window, const int width, const int height)
 {
     glViewport(0, 0, width, height);

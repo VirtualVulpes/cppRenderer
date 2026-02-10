@@ -10,12 +10,9 @@
 #include "shader.h"
 #include "stb_image.h"
 #include "Camera.h"
+#include "InputManager.h"
 #include "InputState.h"
 #include "Window.h"
-
-void processInput(GLFWwindow* window);
-void mouseCallback(GLFWwindow* window, double xPosIn, double yPosIn);
-void scrollCallback(GLFWwindow* window, double xOffset, double yOffset);
 
 // settings
 Camera camera{glm::vec3(0, 0, 5), 0.0, -90.0};
@@ -29,9 +26,8 @@ float lastFrame { 0.0f };
 
 int main()
 {
-    Window window {800, 600, "learnCpp"};
-    window.setMouseCallback(mouseCallback);
-    window.setScrollCallback(scrollCallback);
+    //Window debug {400, 400, "Debug Window"};
+    Window window {800, 600, "Render Window"};
 
     // glad: load all OpenGL function pointers
     // ---------------------------------------
@@ -179,15 +175,30 @@ int main()
 
     glEnable(GL_DEPTH_TEST);
 
+    InputManager inputManager {};
+
     while (!window.shouldClose())
     {
+        // debug
+        // glfwMakeContextCurrent(debug.nativeHandle());
+        // glClearColor(0.5f, 0.3f, 0.3f, 1.0f);
+        // glClear(GL_COLOR_BUFFER_BIT);
+        //
+        // glfwSwapBuffers(debug.nativeHandle());
+        // glfwPollEvents();
+
+        // main
+        window.setActive();
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        // input
-        // -----
-        processInput(window.nativeHandle());
+        InputState input = inputManager.getInput(window);
+
+        camera.processInput(input, deltaTime);
+        if (input.keys.escape) window.close();
+
+        std::cout << input.mouse.xPos << '\n';
 
         // render
         // ------
@@ -226,48 +237,6 @@ int main()
 
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
-    shader.deleteProgram();
 
-    glfwTerminate();
     return 0;
-}
-
-
-void mouseCallback(GLFWwindow* window, const double xPosIn, const double yPosIn)
-{
-    const float xPos { static_cast<float>(xPosIn) };
-    const float yPos { static_cast<float>(yPosIn) };
-
-    if (firstMouse)
-    {
-        lastX = xPos;
-        lastY = yPos;
-        firstMouse = false;
-    }
-
-    const float xOffset { xPos - lastX };
-    const float yOffset { lastY - yPos }; // reversed since y-coordinates go from bottom to top
-
-    lastX = xPos;
-    lastY = yPos;
-
-    //camera.ProcessMouseMovement(xOffset, yOffset);
-}
-
-void scrollCallback(GLFWwindow* window, double xOffset, double yOffset)
-{
-
-}
-
-void processInput(GLFWwindow *window)
-{
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-
-    InputState input {};
-    input.forward  = glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS;
-    input.backward = glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS;
-    input.left     = glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS;
-    input.right    = glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS;
-    camera.processInput(input, deltaTime);
 }

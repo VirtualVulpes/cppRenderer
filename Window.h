@@ -14,10 +14,12 @@ class Window
 {
 public:
     Window(int width, int height, std::string_view title);
-
+    ~Window();
     void setMouseCallback(GLFWcursorposfun callback);
     void setScrollCallback(GLFWcursorposfun callback);
     bool shouldClose();
+    void setActive();
+    void close();
 
     int getWidth() const  { return m_width;  }
     int getHeight() const { return m_height; }

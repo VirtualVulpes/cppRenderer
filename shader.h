@@ -106,15 +106,15 @@ public:
         glDeleteShader(fragment);
     }
 
+    ~Shader()
+    {
+        glDeleteProgram(ID);
+    }
+
     // use/activate the shader
     void use()
     {
         glUseProgram(ID);
-    }
-
-    void deleteProgram()
-    {
-        glDeleteProgram(ID);
     }
 
     // utility uniform functions

@@ -24,10 +24,10 @@ void Camera::processInput(const InputState& state, float deltaTime)
 {
     glm::vec3 movement {};
 
-    if (state.forward)  movement += m_front;
-    if (state.backward) movement -= m_front;
-    if (state.right)    movement += m_right;
-    if (state.left)     movement -= m_right;
+    if (state.keys.forward)  movement += m_front;
+    if (state.keys.backward) movement -= m_front;
+    if (state.keys.right)    movement += m_right;
+    if (state.keys.left)     movement -= m_right;
 
     if (glm::length(movement) > 0.0f)
         m_pos += glm::normalize(movement) * deltaTime * m_speed;
