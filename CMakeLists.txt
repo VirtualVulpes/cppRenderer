@@ -17,12 +17,12 @@ add_executable(cppRenderer main.cpp
         Camera.cpp
         Camera.h
         InputState.h
-        Renderer.cpp
-        Renderer.h
+        Window.cpp
+        Window.h
 )
 
 # Link GLAD and GLFW
-target_link_libraries(cppRenderer PRIVATE glad glfw)
+target_link_libraries(cppRenderer PRIVATE opengl32 glad glfw)
 
 # GLM
 target_include_directories(cppRenderer PRIVATE external)

@@ -11,9 +11,8 @@
 #include "stb_image.h"
 #include "Camera.h"
 #include "InputState.h"
-#include "Renderer.h"
+#include "Window.h"
 
-void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 void mouseCallback(GLFWwindow* window, double xPosIn, double yPosIn);
 void scrollCallback(GLFWwindow* window, double xOffset, double yOffset);
@@ -30,10 +29,10 @@ float lastFrame { 0.0f };
 
 int main()
 {
-    Renderer renderer {};
-    renderer.createWindow(800, 600);
-    glfwSetCursorPosCallback(renderer.getWindow(), mouseCallback);
-    glfwSetScrollCallback(renderer.getWindow(), scrollCallback);
+    Window window {800, 600, "learnCpp"};
+    window.setMouseCallback(mouseCallback);
+    window.setScrollCallback(scrollCallback);
+
     // glad: load all OpenGL function pointers
     // ---------------------------------------
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -180,7 +179,7 @@ int main()
 
     glEnable(GL_DEPTH_TEST);
 
-    while (!glfwWindowShouldClose(renderer.getWindow()))
+    while (!window.shouldClose())
     {
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
@@ -188,7 +187,7 @@ int main()
 
         // input
         // -----
-        processInput(renderer.getWindow());
+        processInput(window.nativeHandle());
 
         // render
         // ------
@@ -203,7 +202,7 @@ int main()
         shader.use();
 
         int projectionLoc = glGetUniformLocation(shader.ID, "projection");
-        glm::mat4 projection = glm::perspective(glm::radians(45.0f), static_cast<float>(renderer.getWidth()) / renderer.getHeight(), 0.1f, 100.f);
+        glm::mat4 projection = glm::perspective(glm::radians(45.0f), static_cast<float>(window.getWidth()) / window.getHeight(), 0.1f, 100.f);
 
         shader.setMat4("view", camera.getViewMatrix());
 
@@ -221,7 +220,7 @@ int main()
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
 
-        glfwSwapBuffers(renderer.getWindow());
+        glfwSwapBuffers(window.nativeHandle());
         glfwPollEvents();
     }
 

@@ -2,17 +2,13 @@
 // Created by sjfochs on 2/9/26.
 //
 
-#include "Renderer.h"
-
+#include "Window.h"
 #include <iostream>
 
-#include "GLFW/glfw3.h"
-
-void Renderer::createWindow(unsigned int width, unsigned int height)
+Window::Window(int width, int height, std::string_view title)
+    : m_width(width)
+    , m_height(height)
 {
-    m_scr_width = width;
-    m_scr_height = height;
-
     // glfw: initialize and configure
     // ------------------------------
     glfwInit();
@@ -22,7 +18,7 @@ void Renderer::createWindow(unsigned int width, unsigned int height)
 
     // glfw window creation
     // --------------------
-    m_window = glfwCreateWindow(m_scr_width, m_scr_height, "CppRenderer", nullptr, nullptr);
+    m_window = glfwCreateWindow(m_width, m_height, title.data(), nullptr, nullptr);
     if (m_window == nullptr)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -35,12 +31,22 @@ void Renderer::createWindow(unsigned int width, unsigned int height)
     glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
-void Renderer::framebufferSizeCallback(GLFWwindow* window, const int width, const int height)
+void Window::framebufferSizeCallback(GLFWwindow* window, const int width, const int height)
 {
     glViewport(0, 0, width, height);
 }
 
-GLFWwindow* Renderer::getWindow()
+void Window::setMouseCallback(GLFWcursorposfun callback)
 {
-    return m_window;
+    glfwSetCursorPosCallback(m_window, callback);
+}
+
+void Window::setScrollCallback(GLFWcursorposfun callback)
+{
+    glfwSetScrollCallback(m_window, callback);
+}
+
+bool Window::shouldClose()
+{
+    return glfwWindowShouldClose(m_window);
 }
