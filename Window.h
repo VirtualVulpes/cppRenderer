@@ -10,28 +10,29 @@
 #include "GLFW/glfw3.h"
 
 
-class Window
-{
+class Window {
 public:
-    Window(int width, int height, std::string_view title);
-    ~Window();
-    void setMouseCallback(GLFWcursorposfun callback);
-    void setScrollCallback(GLFWcursorposfun callback);
-    bool shouldClose();
-    void setActive();
-    void close();
+  Window(int width, int height, std::string_view title);
+  ~Window();
 
-    int getWidth() const  { return m_width;  }
-    int getHeight() const { return m_height; }
+  void SetMouseCallback(GLFWcursorposfun callback);
+  void SetScrollCallback(GLFWcursorposfun callback);
 
-    GLFWwindow* nativeHandle() const { return m_window; }
+  void SetActive();
+  bool ShouldClose();
+  void Close();
+
+  void PollEvents();
+  void SwapBuffers();
+
+  float GetAspectRatio() const;
+
+  GLFWwindow *GetNativeHandle() const { return window_; }
 
 private:
-    int m_width;
-    int m_height;
-    GLFWwindow*  m_window;
+  GLFWwindow *window_;
 
-    static void framebufferSizeCallback(GLFWwindow* window, int width, int height);
+  static void FramebufferSizeCallback(GLFWwindow *window, int width, int height);
 };
 
 #endif //CPPRENDERER_RENDERER_H

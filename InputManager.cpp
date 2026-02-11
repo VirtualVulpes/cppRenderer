@@ -7,48 +7,42 @@
 #include "InputState.h"
 #include "GLFW/glfw3.h"
 
-InputManager::InputManager()
-{
+InputState InputManager::GetInput(const Window &window) {
+  InputState input{};
+  input.keys = GetKeyInput(window);
+  input.mouse = GetMouseInput(window);
+
+  return input;
 }
 
-InputState InputManager::getInput(const Window& window)
-{
-    InputState input {};
-    input.keys = getKeyInput(window);
-    input.mouse = getMouseInput(window);
+InputState::Keys InputManager::GetKeyInput(const Window &window) {
+  GLFWwindow *window_handle = window.GetNativeHandle();
 
-    return input;
+  InputState::Keys input{};
+  input.forward  = glfwGetKey(window_handle, GLFW_KEY_W) == GLFW_PRESS;
+  input.backward = glfwGetKey(window_handle, GLFW_KEY_S) == GLFW_PRESS;
+  input.left     = glfwGetKey(window_handle, GLFW_KEY_A) == GLFW_PRESS;
+  input.right    = glfwGetKey(window_handle, GLFW_KEY_D) == GLFW_PRESS;
+  input.escape   = glfwGetKey(window_handle, GLFW_KEY_ESCAPE) == GLFW_PRESS;
+  return input;
 }
 
-InputState::Keys InputManager::getKeyInput(const Window& window)
-{
-    GLFWwindow* windowHandle = window.nativeHandle();
+InputState::Mouse InputManager::GetMouseInput(const Window &window) {
+  GLFWwindow *window_handle = window.GetNativeHandle();
 
-    InputState::Keys input {};
-    input.forward  = glfwGetKey(windowHandle, GLFW_KEY_W) == GLFW_PRESS;
-    input.backward = glfwGetKey(windowHandle, GLFW_KEY_S) == GLFW_PRESS;
-    input.left     = glfwGetKey(windowHandle, GLFW_KEY_A) == GLFW_PRESS;
-    input.right    = glfwGetKey(windowHandle, GLFW_KEY_D) == GLFW_PRESS;
-    input.escape   = glfwGetKey(windowHandle, GLFW_KEY_ESCAPE) == GLFW_PRESS;
-    return input;
-}
+  double x_pos{};
+  double y_pos{};
+  glfwGetCursorPos(window_handle, &x_pos, &y_pos);
 
-InputState::Mouse InputManager::getMouseInput(const Window& window)
-{
-    GLFWwindow* windowHandle = window.nativeHandle();
+  InputState::Mouse input{};
 
-    double xPos {};
-    double yPos {};
-    glfwGetCursorPos(windowHandle, &xPos, &yPos);
+  input.x_last = prev_mouse_.x_pos;
+  input.y_last = prev_mouse_.y_pos;
+  input.x_pos  = x_pos;
+  input.y_pos  = y_pos;
 
-    InputState::Mouse input {};
+  prev_mouse_.x_pos = x_pos;
+  prev_mouse_.y_pos = y_pos;
 
-    input.xLast = m_prevInput.mouse.xPos;
-    input.yLast = m_prevInput.mouse.yPos;
-    input.xPos = xPos;
-    input.yPos = yPos;
-    m_prevInput.mouse.xPos = xPos;
-    m_prevInput.mouse.yPos = yPos;
-
-    return input;
+  return input;
 }

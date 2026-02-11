@@ -1,66 +1,58 @@
-//
-// Created by sjfoc on 2/8/2026.
-//
-
 #include "Camera.h"
 
-#include <iostream>
-
-#include "InputState.h"
+#include <algorithm>
 #include "glm/gtc/matrix_transform.hpp"
 
+constexpr glm::vec3 kWorldUp(0.0f, 1.0f, 0.0f);
+
 Camera::Camera(glm::vec3 pos, float pitch, float yaw)
-    : m_pos(pos)
-    , m_pitch(pitch)
-    , m_yaw(yaw)
-{
-    updateCameraVectors();
+  : pos_(pos)
+  , pitch_(pitch)
+  , yaw_(yaw) {
+  UpdateCameraVectors();
 }
 
-glm::mat4 Camera::getViewMatrix() const
-{
-    return glm::lookAt(m_pos, m_pos + m_front, m_up);
+glm::mat4 Camera::GetView() const {
+  return glm::lookAt(pos_, pos_ + front_, up_);
 }
 
-void Camera::processInput(const InputState& input, float deltaTime)
-{
-    moveCamera(input.keys, deltaTime);
-    rotateCamera(input.mouse, deltaTime);
+glm::mat4 Camera::GetProjection(float aspect_ratio) const {
+  return glm::perspective(glm::radians(fov_), aspect_ratio, z_near_, z_far_);
 }
 
-void Camera::moveCamera(const InputState::Keys& input, float deltaTime)
-{
-    glm::vec3 movement {};
-
-    if (input.forward)  movement += m_front;
-    if (input.backward) movement -= m_front;
-    if (input.right)    movement += m_right;
-    if (input.left)     movement -= m_right;
-
-    if (glm::length(movement) > 0.0f)
-        m_pos += glm::normalize(movement) * deltaTime * m_speed;
+void Camera::Update(const InputState &input, float delta_time) {
+  MoveCamera(input.keys, delta_time);
+  RotateCamera(input.mouse);
 }
 
-void Camera::rotateCamera(const InputState::Mouse& input, float deltaTime)
-{
-    float xOffset = input.xPos - input.xLast;
-    float yOffset = input.yPos - input.yLast;
+void Camera::MoveCamera(const InputState::Keys &input, float delta_time) {
+  glm::vec3 movement{};
 
-    std::cout << input.xPos << ": " << input.xLast << '\n';
+  if (input.forward) movement += front_;
+  if (input.backward) movement -= front_;
+  if (input.right) movement += right_;
+  if (input.left) movement -= right_;
 
-    m_yaw += xOffset * deltaTime * m_sensitivity;
-    m_pitch -= yOffset * deltaTime * m_sensitivity;
-    updateCameraVectors();
+  if (glm::length(movement) > 0.0f)
+    pos_ += glm::normalize(movement) * delta_time * speed_;
 }
 
-void Camera::updateCameraVectors()
-{
-    m_front.x = cos(glm::radians(m_yaw) * cos(glm::radians(m_pitch)));
-    m_front.y = sin(glm::radians(m_pitch));
-    m_front.z = sin(glm::radians(m_yaw) * cos(glm::radians(m_pitch)));
-    m_front = glm::normalize(m_front);
+void Camera::RotateCamera(const InputState::Mouse &input) {
+  float x_offset = input.x_pos - input.x_last;
+  float y_offset = input.y_pos - input.y_last;
 
-    m_right = glm::normalize(glm::cross(m_front, glm::vec3(0.0, 1.0, 0.0)));
-    m_up = glm::normalize(glm::cross(m_right, m_front));
+  yaw_ += x_offset * sensitivity_;
+  pitch_ -= y_offset * sensitivity_;
+  pitch_ = std::clamp(pitch_, -89.0f, 89.0f);
+  UpdateCameraVectors();
+}
 
+void Camera::UpdateCameraVectors() {
+  front_.x = cos(glm::radians(yaw_)) * cos(glm::radians(pitch_));
+  front_.y = sin(glm::radians(pitch_));
+  front_.z = sin(glm::radians(yaw_)) * cos(glm::radians(pitch_));
+  front_ = glm::normalize(front_);
+
+  right_ = glm::normalize(glm::cross(front_, kWorldUp));
+  up_ = glm::normalize(glm::cross(right_, front_));
 }

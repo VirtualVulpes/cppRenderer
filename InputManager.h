@@ -8,15 +8,14 @@
 #include "Window.h"
 
 
-class InputManager
-{
+class InputManager {
 public:
-    InputManager();
-    InputState getInput(const Window& window);
-    InputState::Keys getKeyInput(const Window& window);
-    InputState::Mouse getMouseInput(const Window& window);
+  InputState GetInput(const Window &window);
+  InputState::Keys GetKeyInput(const Window &window);
+  InputState::Mouse GetMouseInput(const Window &window);
+
 private:
-    InputState m_prevInput {};
+  InputState::Mouse prev_mouse_{};
 };
 
 
