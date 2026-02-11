@@ -13,7 +13,6 @@ add_subdirectory(external/glfw)
 # Executable
 add_executable(cppRenderer main.cpp
         shader.h
-        stb_image_impl.cpp
         Camera.cpp
         Camera.h
         InputState.h

@@ -1,9 +1,5 @@
-//
-// Created by sjfoc on 2/8/2026.
-//
-
-#ifndef UNTITLED_INPUTSTATE_H
-#define UNTITLED_INPUTSTATE_H
+#ifndef CPPRENDERER_INPUTSTATE_H
+#define CPPRENDERER_INPUTSTATE_H
 
 struct InputState {
 public:
@@ -25,4 +21,4 @@ public:
   Mouse mouse;
 };
 
-#endif //UNTITLED_INPUTSTATE_H
+#endif

@@ -1,7 +1,8 @@
-#ifndef UNTITLED_CAMERA_H
-#define UNTITLED_CAMERA_H
+#ifndef CPPRENDERER_CAMERA_H
+#define CPPRENDERER_CAMERA_H
 
 #include <glm/glm.hpp>
+
 #include "InputState.h"
 
 struct InputState;
@@ -38,4 +39,4 @@ private:
   void RotateCamera(const InputState::Mouse &input);
 };
 
-#endif //UNTITLED_CAMERA_H
+#endif

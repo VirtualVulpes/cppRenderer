@@ -1,16 +1,10 @@
-//
-// Created by sjfoc on 2/1/2026.
-//
+#ifndef CPPRENDERER_SHADER_H
+#define CPPRENDERER_SHADER_H
 
-#ifndef UNTITLED_SHADER_H
-#define UNTITLED_SHADER_H
-
-#include <glad/glad.h>
-
-#include <string>
 #include <fstream>
 #include <sstream>
-#include <iostream>
+
+#include <glad/glad.h>
 
 class Shader
 {
@@ -140,4 +134,4 @@ public:
     }
 };
 
-#endif //UNTITLED_SHADER_H
+#endif

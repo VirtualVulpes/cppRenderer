@@ -1,8 +1,5 @@
-//
-// Created by sjfochs on 2/9/26.
-//
-
 #include "Window.h"
+
 #include <iostream>
 
 Window::Window(int width, int height, std::string_view title)

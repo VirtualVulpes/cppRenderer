@@ -1,11 +1,8 @@
-//
-// Created by sjfochs on 2/10/26.
-//
-
 #include "InputManager.h"
 
-#include "InputState.h"
 #include "GLFW/glfw3.h"
+
+#include "InputState.h"
 
 InputState InputManager::GetInput(const Window &window) {
   InputState input{};

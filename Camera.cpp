@@ -1,6 +1,7 @@
 #include "Camera.h"
 
 #include <algorithm>
+
 #include "glm/gtc/matrix_transform.hpp"
 
 constexpr glm::vec3 kWorldUp(0.0f, 1.0f, 0.0f);
