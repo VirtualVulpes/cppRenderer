@@ -1,21 +1,24 @@
-//
-// Created by sjfochs on 2/12/26.
-//
-
 #ifndef CPPRENDERER_MESH_H
 #define CPPRENDERER_MESH_H
+#include <vector>
 
+#include "Vertex.h"
 
-class Mesh
-{
+class Mesh {
 public:
-    Mesh();
-    ~Mesh();
-    void BindVertexArray();
+  Mesh(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices);
+
+  ~Mesh();
+
+  void Draw() const;
+  void CreateMesh(float vertices[]);
+
 private:
-    unsigned int vao_;
-    unsigned int vbo_;
+  unsigned int vao_;
+  unsigned int vbo_;
+  unsigned int ebo_;
+
+  int tris_;
 };
 
-
-#endif //CPPRENDERER_MESH_H
+#endif

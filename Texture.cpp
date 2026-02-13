@@ -1,44 +1,61 @@
-//
-// Created by sjfochs on 2/12/26.
-//
-
 #include "Texture.h"
 
 #include <iostream>
 
-#define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #include "glad/glad.h"
 
-
-Texture::Texture()
-{
-
+Texture::Texture() {
+  glGenTextures(1, &id_);
 }
 
-void Texture::LoadFromFile(std::string_view path)
-{
-    glGenTextures(1, &id_);
+Texture::~Texture() {
+  glDeleteTextures(1, &id_);
+}
 
-    glBindTexture(GL_TEXTURE_2D, id_);
+void Texture::LoadFromFile(std::string_view path) {
+  Bind();
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-                    GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                  GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-    stbi_set_flip_vertically_on_load(true);
+  stbi_set_flip_vertically_on_load(true);
 
-    unsigned char *data =
-        stbi_load(path.data(), &width_, &height_, &num_channels_, 0);
-    if (data) {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width_, height_, 0, GL_RGB,
-                     GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    } else {
-        std::cout << "Failed to load texture" << std::endl;
-    }
+  unsigned char* data =
+      stbi_load(path.data(), &width_, &height_, &num_channels_, 4);
+  if (!data)
+    std::cout << "Failed to load texture" << std::endl;
 
-    stbi_image_free(data);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width_, height_, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+  glGenerateMipmap(GL_TEXTURE_2D);
+
+
+  stbi_image_free(data);
+}
+
+void Texture::Bind() const {
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, id_);
+}
+
+void Texture::SetMagFilter(GLenum filter) const {
+  glBindTexture(GL_TEXTURE_2D, id_);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
+}
+
+void Texture::SetMinFilter(GLenum filter) const {
+  glBindTexture(GL_TEXTURE_2D, id_);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
+}
+
+void Texture::SetData(int width, int height, unsigned char* data) {
+  width_ = width;
+  height_ = height;
+
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA,
+               GL_UNSIGNED_BYTE, data);
+  glGenerateMipmap(GL_TEXTURE_2D);
 }

@@ -15,7 +15,6 @@ add_executable(cppRenderer
         main.cpp
         Application.cpp
         Application.h
-        shader.h
         stb_image.h
         Camera.cpp
         Camera.h
@@ -32,6 +31,12 @@ add_executable(cppRenderer
         GameObject.h
         Texture.cpp
         Texture.h
+        Transform.h
+        WindowContext.h
+        Shader.cpp
+        Shader.h
+        Geometry.h
+        Vertex.h
 )
 
 # Link GLAD and GLFW

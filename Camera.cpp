@@ -29,10 +29,12 @@ void Camera::Update(const InputState &input, float delta_time) {
 void Camera::MoveCamera(const InputState::Keys &input, float delta_time) {
   glm::vec3 movement{};
 
-  if (input.forward) movement += front_;
+  if (input.forward)  movement += front_;
   if (input.backward) movement -= front_;
-  if (input.right) movement += right_;
-  if (input.left) movement -= right_;
+  if (input.right)    movement += right_;
+  if (input.left)     movement -= right_;
+  if (input.up)       movement += kWorldUp;
+  if (input.down)     movement -= kWorldUp;
 
   if (glm::length(movement) > 0.0f)
     pos_ += glm::normalize(movement) * delta_time * speed_;

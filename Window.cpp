@@ -2,14 +2,16 @@
 
 #include <iostream>
 
+#include "WindowContext.h"
+
 Window::Window(int width, int height, std::string_view title)
 {
   // glfw: initialize and configure
   // ------------------------------
-  glfwInit();
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+  glfwWindowHint(GLFW_SAMPLES, 4);
 
   // glfw window creation
   // --------------------
@@ -43,10 +45,16 @@ float Window::GetAspectRatio() const {
 
   glfwGetFramebufferSize(window_, &width, &height);
 
-  return static_cast<float>(width) / static_cast<float>(height);
+  return static_cast<float>(width) / height;
 }
 
 void Window::FramebufferSizeCallback(GLFWwindow *window, const int width, const int height) {
+  const auto* context = static_cast<WindowContext*>(glfwGetWindowUserPointer(window));
+  if (!context) return;
+
+  context->shader->Use();
+  context->shader->SetMat4("projection", context->camera->GetProjection(static_cast<float>(width) / height));
+
   glViewport(0, 0, width, height);
 }
 

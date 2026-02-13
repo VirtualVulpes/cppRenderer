@@ -13,19 +13,24 @@ InputState InputManager::GetInput(const Window &window) {
 }
 
 InputState::Keys InputManager::GetKeyInput(const Window &window) {
-  GLFWwindow *window_handle = window.GetNativeHandle();
+  GLFWwindow *window_handle = window.GetHandle();
 
   InputState::Keys input{};
-  input.forward  = glfwGetKey(window_handle, GLFW_KEY_W) == GLFW_PRESS;
-  input.backward = glfwGetKey(window_handle, GLFW_KEY_S) == GLFW_PRESS;
-  input.left     = glfwGetKey(window_handle, GLFW_KEY_A) == GLFW_PRESS;
-  input.right    = glfwGetKey(window_handle, GLFW_KEY_D) == GLFW_PRESS;
-  input.escape   = glfwGetKey(window_handle, GLFW_KEY_ESCAPE) == GLFW_PRESS;
+
+  input.forward  = glfwGetKey(window_handle, GLFW_KEY_W)          == GLFW_PRESS;
+  input.backward = glfwGetKey(window_handle, GLFW_KEY_S)          == GLFW_PRESS;
+  input.left     = glfwGetKey(window_handle, GLFW_KEY_A)          == GLFW_PRESS;
+  input.right    = glfwGetKey(window_handle, GLFW_KEY_D)          == GLFW_PRESS;
+
+  input.up       = glfwGetKey(window_handle, GLFW_KEY_SPACE)      == GLFW_PRESS;
+  input.down     = glfwGetKey(window_handle, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS;
+
+  input.escape   = glfwGetKey(window_handle, GLFW_KEY_ESCAPE)     == GLFW_PRESS;
   return input;
 }
 
 InputState::Mouse InputManager::GetMouseInput(const Window &window) {
-  GLFWwindow *window_handle = window.GetNativeHandle();
+  GLFWwindow *window_handle = window.GetHandle();
 
   double x_pos{};
   double y_pos{};

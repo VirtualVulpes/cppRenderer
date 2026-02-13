@@ -1,71 +1,85 @@
 #include "Application.h"
 
 #include <format>
-#include <iostream>
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
 #include "Camera.h"
+#include "GameObject.h"
+#include "Geometry.h"
 #include "InputManager.h"
 #include "Mesh.h"
 #include "shader.h"
 #include "Texture.h"
+#include "WindowContext.h"
 
-Application::Application()
-    : window_{1280, 720, "Render Window"}
-{
+Application::Application() {
+  if (!glfwInit())
+    throw std::runtime_error("Failed to initialize GLFW");
 
+  window_ = std::make_unique<Window>(1280, 720, "Render Window");
+
+  if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress))
+    throw std::runtime_error("Failed to initialize GLAD");
+
+  renderer_ = std::make_unique<Renderer>();
+
+  stbi_set_flip_vertically_on_load(true);
 }
 
-void Application::Run()
-{
-    Camera camera{glm::vec3(0, 0, 5), 0.0, -90.0};
+void Application::Run() {
+  Camera camera{glm::vec3(0.0f, 0.0f, 5.0f), 0.0f, 180.0f};
+  InputManager input_manager{};
 
-    Shader shader("shaders/shader.vs", "shaders/shader.fs");
+  Transform t{};
 
-    Mesh mesh{};
+  Mesh cubeMesh{Geometry::Cube::vertices, Geometry::Cube::indices};
+  Mesh planeMesh{Geometry::Plane::vertices, Geometry::Plane::indices};
 
-    Texture texture{};
-    texture.LoadFromFile("container.jpg");
+  Texture dirtTex{};
+  dirtTex.Bind();
+  dirtTex.LoadFromFile("textures/dirt.png");
 
-    shader.use();
+  Texture stoneTex{};
+  stoneTex.Bind();
+  stoneTex.LoadFromFile("textures/stone.png");
 
-    InputManager input_manager{};
+  Shader shader("shaders/shader.vs", "shaders/shader.fs");
+  shader.Use();
+  shader.SetMat4("projection", camera.GetProjection(window_->GetAspectRatio()));
 
-    float delta_time{0.0f};
-    float last_frame{0.0f};
+  WindowContext context{&camera, &shader};
+  glfwSetWindowUserPointer(window_->GetHandle(), &context);
 
-    while (!should_close_) {
-        window_.PollEvents();
+  GameObject cube{t, &cubeMesh, &dirtTex, &shader};
+  t.pos = glm::vec3(0.0f, 2.0f, 0.0f);
+  GameObject plane{t, &planeMesh, &stoneTex, &shader};
 
-        float current_frame = glfwGetTime();
-        delta_time = current_frame - last_frame;
-        last_frame = current_frame;
+  float delta_time{0.0f};
+  float last_frame{0.0f};
 
-        InputState input = input_manager.GetInput(window_);
+  while (!should_close_) {
+    window_->PollEvents();
 
-        camera.Update(input, delta_time);
-        if (input.keys.escape)
-            Close();
+    float current_frame = glfwGetTime();
+    delta_time = current_frame - last_frame;
+    last_frame = current_frame;
 
-        renderer_.Clear();
+    InputState input = input_manager.GetInput(*window_);
+    if (input.keys.escape)
+      Close();
+    camera.Update(input, delta_time);
+    shader.SetMat4("view", camera.GetView());
 
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture.GetId());
+    renderer_->Clear();
 
-        shader.use();
+    cube.Draw();
+    plane.Draw();
 
-        shader.setMat4("projection", camera.GetProjection(window_.GetAspectRatio()));
-        shader.setMat4("view", camera.GetView());
-
-        mesh.BindVertexArray();
-        glm::mat4 model = glm::mat4(1.0f);
-        shader.setMat4("model", model);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-
-        window_.SwapBuffers();
-    }
+    window_->SwapBuffers();
+  }
 }
 
-void Application::Close()
-{
-    should_close_ = true;
+void Application::Close() {
+  should_close_ = true;
 }

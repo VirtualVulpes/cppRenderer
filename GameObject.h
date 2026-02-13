@@ -1,22 +1,27 @@
-//
-// Created by sjfochs on 2/12/26.
-//
-
 #ifndef CPPRENDERER_GAMEOBJECT_H
 #define CPPRENDERER_GAMEOBJECT_H
+
+#include "Transform.h"
 #include "Mesh.h"
+#include "Texture.h"
 #include "shader.h"
-#include <glm/glm.hpp>
 
+class Texture;
 
-class GameObject
-{
-    GameObject(glm::vec3 pos, Mesh mesh, Shader shader);
+class GameObject {
+public:
+  GameObject(const Transform& transform, Mesh* mesh, Texture* texture, Shader* shader);
+
+  void Draw() const;
+  void Rotate(glm::vec3 rotation);
+
 private:
-    glm::vec3 pos_;
-    Mesh mesh_;
-    Shader shader_;
+  Transform transform_;
+  Mesh* mesh_;
+  Texture* texture_;
+  Shader* shader_;
+
+  glm::mat4 ComputeModelMatrix() const;
 };
 
-
-#endif //CPPRENDERER_GAMEOBJECT_H
+#endif

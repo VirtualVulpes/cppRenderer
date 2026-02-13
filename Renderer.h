@@ -3,9 +3,9 @@
 
 class Renderer {
 public:
-    Renderer();
+  Renderer();
 
-    void Clear();
+  void Clear();
 };
 
 #endif

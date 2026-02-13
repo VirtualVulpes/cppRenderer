@@ -33,9 +33,7 @@ private:
   float z_far_{100.0f};
 
   void UpdateCameraVectors();
-
   void MoveCamera(const InputState::Keys &input, float delta_time);
-
   void RotateCamera(const InputState::Mouse &input);
 };
 

@@ -2,12 +2,13 @@
 #define CPPRENDERER_INPUTSTATE_H
 
 struct InputState {
-public:
   struct Keys {
     bool forward{false};
     bool backward{false};
     bool right{false};
     bool left{false};
+    bool up{false};
+    bool down{false};
     bool escape{false};
   };
   Keys keys;

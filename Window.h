@@ -23,12 +23,12 @@ public:
 
   float GetAspectRatio() const;
 
-  GLFWwindow *GetNativeHandle() const { return window_; }
+  GLFWwindow* GetHandle() const { return window_; }
 
 private:
-  GLFWwindow *window_;
+  GLFWwindow* window_;
 
-  static void FramebufferSizeCallback(GLFWwindow *window, int width, int height);
+  static void FramebufferSizeCallback(GLFWwindow* window, int width, int height);
 };
 
 #endif
