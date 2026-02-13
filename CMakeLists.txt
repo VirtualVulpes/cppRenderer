@@ -11,8 +11,12 @@ target_include_directories(glad PUBLIC external/glad/include)
 add_subdirectory(external/glfw)
 
 # Executable
-add_executable(cppRenderer main.cpp
+add_executable(cppRenderer
+        main.cpp
+        Application.cpp
+        Application.h
         shader.h
+        stb_image.h
         Camera.cpp
         Camera.h
         InputState.h
@@ -22,6 +26,12 @@ add_executable(cppRenderer main.cpp
         InputManager.h
         Renderer.cpp
         Renderer.h
+        Mesh.cpp
+        Mesh.h
+        GameObject.cpp
+        GameObject.h
+        Texture.cpp
+        Texture.h
 )
 
 # Link GLAD and GLFW

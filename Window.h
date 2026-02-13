@@ -1,7 +1,8 @@
-#ifndef CPPRENDERER_RENDERER_H
-#define CPPRENDERER_RENDERER_H
+#ifndef CPPRENDERER_WINDOW_H
+#define CPPRENDERER_WINDOW_H
 
 #include <string_view>
+#include "glad/glad.h"
 
 #include "GLFW/glfw3.h"
 
