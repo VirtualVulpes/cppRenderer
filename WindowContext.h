@@ -6,7 +6,6 @@
 
 struct WindowContext {
   Camera* camera;
-  Shader* shader;
 };
 
 #endif

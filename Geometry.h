@@ -3,7 +3,7 @@
 
 #include "Vertex.h"
 
-namespace Geometry {
+struct Geometry {
   struct Cube {
     inline static const std::vector<Vertex> vertices = {
       // back
@@ -61,6 +61,6 @@ namespace Geometry {
       2, 1, 3
     };
   };
-}
+};
 
 #endif

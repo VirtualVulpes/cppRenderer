@@ -9,12 +9,16 @@ struct InputState;
 
 class Camera {
 public:
-  Camera(glm::vec3 pos, float pitch, float yaw);
+  Camera(glm::vec3 pos, float pitch, float yaw, float aspect_ratio);
 
   glm::mat4 GetView() const;
-  glm::mat4 GetProjection(float aspect_ratio) const;
+  glm::mat4 GetProjection() const;
 
   void Update(const InputState &input, float delta_time);
+  void MarkProjectionDirty();
+  bool IsProjectionDirty() const { return is_projection_dirty_; }
+  void ClearProjectionDirtyFlag() { is_projection_dirty_ = false; }
+  void SetAspectRatio(float aspect_ratio);
 
 private:
   glm::vec3 pos_;
@@ -31,6 +35,9 @@ private:
 
   float z_near_{0.1f};
   float z_far_{100.0f};
+
+  float aspect_ratio_;
+  bool is_projection_dirty_{true};
 
   void UpdateCameraVectors();
   void MoveCamera(const InputState::Keys &input, float delta_time);

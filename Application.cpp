@@ -13,11 +13,16 @@
 #include "Texture.h"
 #include "WindowContext.h"
 
+constexpr int kInitialWidth{1280};
+constexpr int kInitialHeight{720};
+
+void CreateFloorMesh(std::vector<std::unique_ptr<GameObject>>& objects, Mesh* mesh, Texture* texture, Shader* shader);
+
 Application::Application() {
   if (!glfwInit())
     throw std::runtime_error("Failed to initialize GLFW");
 
-  window_ = std::make_unique<Window>(1280, 720, "Render Window");
+  window_ = std::make_unique<Window>(kInitialWidth, kInitialHeight, "Render Window");
 
   if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress))
     throw std::runtime_error("Failed to initialize GLAD");
@@ -28,32 +33,26 @@ Application::Application() {
 }
 
 void Application::Run() {
-  Camera camera{glm::vec3(0.0f, 0.0f, 5.0f), 0.0f, 180.0f};
+  Camera camera{glm::vec3(2.0f, 1.0f, 8.0f), 0.0f, -90.0f, static_cast<float>(kInitialWidth)/kInitialHeight};
   InputManager input_manager{};
 
-  Transform t{};
+  Transform t{glm::vec3(8.0f, 0.0f, 8.0f)};
 
-  Mesh cubeMesh{Geometry::Cube::vertices, Geometry::Cube::indices};
-  Mesh planeMesh{Geometry::Plane::vertices, Geometry::Plane::indices};
+  Mesh cubeMesh{Geometry::Cube{}};
+  Mesh planeMesh{Geometry::Plane{}};
 
-  Texture dirtTex{};
-  dirtTex.Bind();
-  dirtTex.LoadFromFile("textures/dirt.png");
+  Texture dirtTex{"textures/dirt.png"};
+  Texture grassTex{"textures/grass_block_top.png"};
 
-  Texture stoneTex{};
-  stoneTex.Bind();
-  stoneTex.LoadFromFile("textures/stone.png");
+  Shader shader{"shaders/shader.vs", "shaders/shader.fs"};
+  renderer_->UseShader(&shader);
 
-  Shader shader("shaders/shader.vs", "shaders/shader.fs");
-  shader.Use();
-  shader.SetMat4("projection", camera.GetProjection(window_->GetAspectRatio()));
-
-  WindowContext context{&camera, &shader};
+  WindowContext context{&camera};
   glfwSetWindowUserPointer(window_->GetHandle(), &context);
 
-  GameObject cube{t, &cubeMesh, &dirtTex, &shader};
-  t.pos = glm::vec3(0.0f, 2.0f, 0.0f);
-  GameObject plane{t, &planeMesh, &stoneTex, &shader};
+  std::vector<std::unique_ptr<GameObject>> objects;
+  objects.push_back(std::make_unique<GameObject>(t, &cubeMesh, &dirtTex, &shader));
+  CreateFloorMesh(objects, &planeMesh, &grassTex, &shader);
 
   float delta_time{0.0f};
   float last_frame{0.0f};
@@ -69,12 +68,11 @@ void Application::Run() {
     if (input.keys.escape)
       Close();
     camera.Update(input, delta_time);
-    shader.SetMat4("view", camera.GetView());
+
+    renderer_->SetCamera(camera);
 
     renderer_->Clear();
-
-    cube.Draw();
-    plane.Draw();
+    renderer_->Draw(objects);
 
     window_->SwapBuffers();
   }
@@ -82,4 +80,16 @@ void Application::Run() {
 
 void Application::Close() {
   should_close_ = true;
+}
+
+void CreateFloorMesh(std::vector<std::unique_ptr<GameObject>>& objects, Mesh* mesh, Texture* texture, Shader* shader) {
+  int width{16};
+  int length{16};
+
+  for (int z = 0; z < length; ++z) {
+    for (int x = 0; x < width; ++x) {
+      Transform t {glm::vec3(x, -0.5f, z), glm::vec3(-90.0f, 0.0f, 0.0f)};
+      objects.push_back(std::make_unique<GameObject>(t, mesh, texture, shader));
+    }
+  }
 }

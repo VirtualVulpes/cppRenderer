@@ -8,6 +8,7 @@
 class Texture {
 public:
   Texture();
+  explicit Texture(std::string_view path);
   ~Texture();
 
   void LoadFromFile(std::string_view path);

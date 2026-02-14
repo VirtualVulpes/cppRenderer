@@ -8,6 +8,24 @@
 #include "glm/detail/type_vec3.hpp"
 
 Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices) {
+  CreateMesh(vertices, indices);
+}
+
+Mesh::~Mesh() {
+  glDeleteVertexArrays(1, &vao_);
+  glDeleteBuffers(1, &vbo_);
+  glDeleteBuffers(1, &ebo_);
+}
+
+
+
+void Mesh::Draw() const {
+  glBindVertexArray(vao_);
+  //glDrawArrays(GL_TRIANGLES, 0, tris_);
+  glDrawElements(GL_TRIANGLES, tris_ * 3, GL_UNSIGNED_INT, nullptr);
+}
+
+void Mesh::CreateMesh(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices) {
   glGenVertexArrays(1, &vao_);
   glGenBuffers(1, &vbo_);
   glGenBuffers(1, &ebo_);
@@ -33,22 +51,4 @@ Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& ind
   glBindVertexArray(0);                            // vao
   glBindBuffer(GL_ARRAY_BUFFER, 0);         // vbo
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); // ebo
-}
-
-Mesh::~Mesh() {
-  glDeleteVertexArrays(1, &vao_);
-  glDeleteBuffers(1, &vbo_);
-  glDeleteBuffers(1, &ebo_);
-}
-
-void Mesh::Draw() const {
-  glBindVertexArray(vao_);
-  //glDrawArrays(GL_TRIANGLES, 0, tris_);
-  glDrawElements(GL_TRIANGLES, tris_ * 3, GL_UNSIGNED_INT, nullptr);
-}
-
-void Mesh::CreateMesh(float vertices[]) {
-  glBindVertexArray(vao_);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-  tris_ = sizeof(vertices) / sizeof(vertices[0]) / 8;
 }

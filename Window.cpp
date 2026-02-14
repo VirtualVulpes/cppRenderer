@@ -52,10 +52,9 @@ void Window::FramebufferSizeCallback(GLFWwindow *window, const int width, const 
   const auto* context = static_cast<WindowContext*>(glfwGetWindowUserPointer(window));
   if (!context) return;
 
-  context->shader->Use();
-  context->shader->SetMat4("projection", context->camera->GetProjection(static_cast<float>(width) / height));
-
   glViewport(0, 0, width, height);
+  context->camera->SetAspectRatio(static_cast<float>(width) / height);
+  context->camera->MarkProjectionDirty();
 }
 
 void Window::SetMouseCallback(GLFWcursorposfun callback) {

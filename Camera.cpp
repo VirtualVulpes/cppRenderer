@@ -6,10 +6,11 @@
 
 constexpr glm::vec3 kWorldUp(0.0f, 1.0f, 0.0f);
 
-Camera::Camera(glm::vec3 pos, float pitch, float yaw)
+Camera::Camera(glm::vec3 pos, float pitch, float yaw, float aspect_ratio)
   : pos_(pos)
   , pitch_(pitch)
-  , yaw_(yaw) {
+  , yaw_(yaw)
+  , aspect_ratio_(aspect_ratio) {
   UpdateCameraVectors();
 }
 
@@ -17,8 +18,8 @@ glm::mat4 Camera::GetView() const {
   return glm::lookAt(pos_, pos_ + front_, up_);
 }
 
-glm::mat4 Camera::GetProjection(float aspect_ratio) const {
-  return glm::perspective(glm::radians(fov_), aspect_ratio, z_near_, z_far_);
+glm::mat4 Camera::GetProjection() const {
+  return glm::perspective(glm::radians(fov_), aspect_ratio_, z_near_, z_far_);
 }
 
 void Camera::Update(const InputState &input, float delta_time) {
@@ -58,4 +59,13 @@ void Camera::UpdateCameraVectors() {
 
   right_ = glm::normalize(glm::cross(front_, kWorldUp));
   up_ = glm::normalize(glm::cross(right_, front_));
+}
+
+
+void Camera::MarkProjectionDirty() {
+  is_projection_dirty_ = true;
+}
+
+void Camera::SetAspectRatio(float aspect_ratio) {
+  aspect_ratio_ = aspect_ratio;
 }

@@ -9,6 +9,12 @@ Texture::Texture() {
   glGenTextures(1, &id_);
 }
 
+Texture::Texture(std::string_view path)
+  : Texture()
+{
+  LoadFromFile(path);
+}
+
 Texture::~Texture() {
   glDeleteTextures(1, &id_);
 }
@@ -52,6 +58,8 @@ void Texture::SetMinFilter(GLenum filter) const {
 }
 
 void Texture::SetData(int width, int height, unsigned char* data) {
+  Bind();
+
   width_ = width;
   height_ = height;
 
