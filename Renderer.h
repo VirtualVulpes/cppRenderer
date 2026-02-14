@@ -11,12 +11,9 @@ public:
   Renderer();
 
   void Clear();
-  void Draw(const GameObject& object) const;
-  void Draw(const std::vector<std::unique_ptr<GameObject>>& objects) const;
+  void Draw(const GameObject& object, Camera* camera) const;
+  void Draw(const std::vector<std::unique_ptr<GameObject>>& objects, Camera* camera) const;
   void SetCamera(Camera& camera) const;
-  void UseShader(Shader* shader);
-private:
-  Shader* active_shader_;
 };
 
 #endif

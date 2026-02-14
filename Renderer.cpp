@@ -15,25 +15,26 @@ void Renderer::Clear() {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void Renderer::Draw(const GameObject& object) const {
+void Renderer::Draw(const GameObject& object, Camera* camera) const {
+  Shader* shader = object.GetShader();
+  shader->Use();
+
+  shader->SetMat4("view", camera->GetView());
+  if (camera->IsProjectionDirty())
+    shader->SetMat4("projection", camera->GetProjection());
+
   object.Draw();
 }
 
-void Renderer::Draw(const std::vector<std::unique_ptr<GameObject> >& objects) const {
-  for (const auto& obj : objects)
-    obj->Draw();
-}
+void Renderer::Draw(const std::vector<std::unique_ptr<GameObject> >& objects, Camera* camera) const {
+  for (const auto& object : objects) {
+    Shader* shader = object->GetShader();
+    shader->Use();
 
-void Renderer::SetCamera(Camera& camera) const {
-  active_shader_->SetMat4("view", camera.GetView());
+    shader->SetMat4("view", camera->GetView());
+    if ( camera->IsProjectionDirty())
+      shader->SetMat4("projection", camera->GetProjection());
 
-  if (camera.IsProjectionDirty()) {
-    active_shader_->SetMat4("projection", camera.GetProjection());
-    camera.ClearProjectionDirtyFlag();
+    object->Draw();
   }
-}
-
-void Renderer::UseShader(Shader* shader) {
-  active_shader_ = shader;
-  active_shader_->Use();
 }

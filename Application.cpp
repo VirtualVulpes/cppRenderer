@@ -34,25 +34,28 @@ Application::Application() {
 
 void Application::Run() {
   Camera camera{glm::vec3(2.0f, 1.0f, 8.0f), 0.0f, -90.0f, static_cast<float>(kInitialWidth)/kInitialHeight};
-  InputManager input_manager{};
 
-  Transform t{glm::vec3(8.0f, 0.0f, 8.0f)};
+  WindowContext context{&camera};
+  glfwSetWindowUserPointer(window_->GetHandle(), &context);
+
+  InputManager input_manager{};
 
   Mesh cubeMesh{Geometry::Cube{}};
   Mesh planeMesh{Geometry::Plane{}};
 
   Texture dirtTex{"textures/dirt.png"};
+  Texture stoneTex{"textures/stone.png"};
   Texture grassTex{"textures/grass_block_top.png"};
 
-  Shader shader{"shaders/shader.vs", "shaders/shader.fs"};
-  renderer_->UseShader(&shader);
-
-  WindowContext context{&camera};
-  glfwSetWindowUserPointer(window_->GetHandle(), &context);
+  Shader unlit{"shaders/shader.vs", "shaders/unlit.fs"};
+  Shader lit{"shaders/shader.vs", "shaders/lit.fs"};
 
   std::vector<std::unique_ptr<GameObject>> objects;
-  objects.push_back(std::make_unique<GameObject>(t, &cubeMesh, &dirtTex, &shader));
-  CreateFloorMesh(objects, &planeMesh, &grassTex, &shader);
+  Transform t{glm::vec3(8.0f, 0.0f, 9.0f)};
+  objects.push_back(std::make_unique<GameObject>(t, &cubeMesh, &dirtTex, &unlit));
+  t.pos = {7.0f, 1.0f, 6.0f};
+  objects.push_back(std::make_unique<GameObject>(t, &cubeMesh, &stoneTex, &lit));
+  CreateFloorMesh(objects, &planeMesh, &grassTex, &unlit);
 
   float delta_time{0.0f};
   float last_frame{0.0f};
@@ -69,11 +72,10 @@ void Application::Run() {
       Close();
     camera.Update(input, delta_time);
 
-    renderer_->SetCamera(camera);
-
     renderer_->Clear();
-    renderer_->Draw(objects);
+    renderer_->Draw(objects, &camera);
 
+    camera.ClearProjectionDirtyFlag();
     window_->SwapBuffers();
   }
 }
