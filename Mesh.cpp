@@ -3,9 +3,6 @@
 #include <vector>
 
 #include "glad/glad.h"
-#include "glm/detail/type_vec.hpp"
-#include "glm/detail/type_vec2.hpp"
-#include "glm/detail/type_vec3.hpp"
 
 Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices) {
   CreateMesh(vertices, indices);
@@ -17,12 +14,9 @@ Mesh::~Mesh() {
   glDeleteBuffers(1, &ebo_);
 }
 
-
-
 void Mesh::Draw() const {
   glBindVertexArray(vao_);
-  //glDrawArrays(GL_TRIANGLES, 0, tris_);
-  glDrawElements(GL_TRIANGLES, tris_ * 3, GL_UNSIGNED_INT, nullptr);
+  glDrawElements(GL_TRIANGLES, vertex_count_, GL_UNSIGNED_INT, nullptr);
 }
 
 void Mesh::CreateMesh(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices) {
@@ -35,20 +29,20 @@ void Mesh::CreateMesh(const std::vector<Vertex>& vertices, const std::vector<uin
   glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint32_t), indices.data(), GL_STATIC_DRAW);
-  tris_ = indices.size() / 3;
+
+  vertex_count_ = indices.size();
 
   // position attribute
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)  offsetof(Vertex, pos));
   glEnableVertexAttribArray(0);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)  offsetof(Vertex, pos));
   // normal attribute
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) offsetof(Vertex, normal));
   glEnableVertexAttribArray(1);
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) offsetof(Vertex, normal));
   // texture coord attribute
-  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)  offsetof(Vertex, uv));
   glEnableVertexAttribArray(2);
+  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)  offsetof(Vertex, uv));
 
   // unbind
-  glBindVertexArray(0);                            // vao
-  glBindBuffer(GL_ARRAY_BUFFER, 0);         // vbo
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); // ebo
+  glBindVertexArray(0);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
 }

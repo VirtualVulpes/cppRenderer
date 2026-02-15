@@ -2,9 +2,12 @@
 
 #include <format>
 #define STB_IMAGE_IMPLEMENTATION
+#include <iostream>
+
 #include "stb_image.h"
 
 #include "Camera.h"
+#include "Framebuffer.h"
 #include "GameObject.h"
 #include "Geometry.h"
 #include "InputManager.h"
@@ -52,6 +55,7 @@ void Application::Run() {
 
   Shader unlit{"shaders/shader.vs", "shaders/unlit.fs"};
   Shader lit{"shaders/shader.vs", "shaders/lit.fs"};
+  Shader clouds{"shaders/clouds.vs", "shaders/clouds.fs"};
 
   std::vector<std::unique_ptr<GameObject>> objects;
   // dirt cube
@@ -69,11 +73,8 @@ void Application::Run() {
   // floor plane
   CreateFloorMesh(objects, &plane_mesh, &grass_tex, &lit, &grass_tex );
 
-  glm::vec3 light_color {0.7f, 0.7f, 0.7f};
-
   lit.Use();
   lit.SetVec3("viewPos", camera.GetPosition());
-
   lit.SetFloat("material.shininess", 32.0f);
 
   // Direction light
@@ -127,6 +128,9 @@ void Application::Run() {
   float delta_time{0.0f};
   float last_frame{0.0f};
 
+  Mesh screen_quad{Geometry::Quad{}};
+  Framebuffer framebuffer{kInitialWidth, kInitialHeight};
+
   while (!should_close_) {
     window_->PollEvents();
 
@@ -143,8 +147,14 @@ void Application::Run() {
     lit.SetVec3("light.position", lightPtr->GetPosition());
     lit.SetVec3("light.direction", glm::vec3(0.0f, -1.0f, 0.0f));
 
+    framebuffer.Bind();
     renderer_->Clear();
     renderer_->Draw(objects, &camera);
+    Framebuffer::Unbind();
+
+    clouds.Use();
+    Texture::Bind(0, framebuffer.GetColorAttachment());
+    screen_quad.Draw();
 
     camera.ClearProjectionDirtyFlag();
     window_->SwapBuffers();

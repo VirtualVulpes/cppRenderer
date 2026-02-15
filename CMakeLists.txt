@@ -37,6 +37,8 @@ add_executable(cppRenderer
         Shader.h
         Geometry.h
         Vertex.h
+        Framebuffer.cpp
+        Framebuffer.h
 )
 
 # Link GLAD and GLFW

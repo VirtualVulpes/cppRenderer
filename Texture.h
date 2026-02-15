@@ -14,6 +14,7 @@ public:
   void LoadFromFile(std::string_view path);
   unsigned int GetId() const { return id_; }
   void Bind(unsigned int unit) const;
+  static void Bind(unsigned int unit, unsigned int id);
 
   void SetMinFilter(GLenum filter) const;
   void SetMagFilter(GLenum filter) const;

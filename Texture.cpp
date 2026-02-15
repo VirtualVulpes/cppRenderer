@@ -47,6 +47,11 @@ void Texture::Bind(unsigned int unit) const {
   glBindTexture(GL_TEXTURE_2D, id_);
 }
 
+void Texture::Bind(unsigned int unit, unsigned int id) {
+  glActiveTexture(GL_TEXTURE0 + unit);
+  glBindTexture(GL_TEXTURE_2D, id);
+}
+
 void Texture::SetMagFilter(GLenum filter) const {
   glBindTexture(GL_TEXTURE_2D, id_);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
