@@ -5,13 +5,16 @@
 #include <unordered_map>
 
 #include "glm/detail/type_mat.hpp"
+#include "glm/detail/type_vec.hpp"
 
 class Shader {
 public:
   Shader(std::string_view vertPath, std::string_view fragPath);
   ~Shader();
 
-  void SetMat4(std::string_view uniform, glm::mat4 value) const;
+  void SetMat4(std::string_view uniform, const glm::mat4& value) const;
+  void SetVec3(std::string_view uniform, const glm::vec3& value) const;
+  void SetFloat(std::string_view uniform, float value) const;
   void Use() const;
 
   enum class ShaderType { kVertex, kFragment, kProgram };

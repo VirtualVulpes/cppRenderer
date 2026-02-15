@@ -13,6 +13,7 @@ public:
 
   glm::mat4 GetView() const;
   glm::mat4 GetProjection() const;
+  glm::vec3 GetPosition() const { return pos_; }
 
   void Update(const InputState &input, float delta_time);
   void MarkProjectionDirty();

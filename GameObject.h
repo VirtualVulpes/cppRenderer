@@ -16,6 +16,8 @@ public:
   void Draw() const;
   void Rotate(glm::vec3 rotation);
   Shader* GetShader() const { return shader_; }
+  const glm::vec3& GetPosition() const { return transform_.pos; }
+  void Move(const glm::vec3& delta);
 
 private:
   Transform transform_;

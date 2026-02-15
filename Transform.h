@@ -8,6 +8,10 @@ struct Transform {
   glm::vec3 pos{0.0f};
   glm::vec3 rotation{0.0f};
   glm::vec3 scale{1.0f};
+
+  void Translate(const glm::vec3& delta) {
+    pos += delta;
+  }
 };
 
 #endif

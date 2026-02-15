@@ -20,6 +20,7 @@ void Renderer::Draw(const GameObject& object, Camera* camera) const {
   shader->Use();
 
   shader->SetMat4("view", camera->GetView());
+  shader->SetVec3("viewPos", camera->GetPosition());
   if (camera->IsProjectionDirty())
     shader->SetMat4("projection", camera->GetProjection());
 
@@ -28,13 +29,6 @@ void Renderer::Draw(const GameObject& object, Camera* camera) const {
 
 void Renderer::Draw(const std::vector<std::unique_ptr<GameObject> >& objects, Camera* camera) const {
   for (const auto& object : objects) {
-    Shader* shader = object->GetShader();
-    shader->Use();
-
-    shader->SetMat4("view", camera->GetView());
-    if ( camera->IsProjectionDirty())
-      shader->SetMat4("projection", camera->GetProjection());
-
-    object->Draw();
+    Draw(*object, camera);
   }
 }

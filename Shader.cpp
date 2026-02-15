@@ -45,9 +45,19 @@ void Shader::Use() const {
 }
 
 // Shader::Use() must be called first to correctly assign value
-void Shader::SetMat4(std::string_view uniform, glm::mat4 value) const {
+void Shader::SetMat4(std::string_view uniform, const glm::mat4& value) const {
   int location = GetUniformLocation(std::string(uniform));
   glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
+}
+
+void Shader::SetVec3(std::string_view uniform, const glm::vec3& value) const {
+  int location = GetUniformLocation(std::string(uniform));
+  glUniform3fv(location, 1, glm::value_ptr(value));
+}
+
+void Shader::SetFloat(std::string_view uniform, float value) const {
+  int location = GetUniformLocation(std::string(uniform));
+  glUniform1f(location, value);
 }
 
 std::string Shader::ReadFile(std::string_view path) {

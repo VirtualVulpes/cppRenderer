@@ -23,6 +23,10 @@ glm::mat4 GameObject::ComputeModelMatrix() const {
          glm::scale(glm::mat4(1.0f), transform_.scale);
 }
 
+void GameObject::Move(const glm::vec3& delta) {
+  transform_.Translate(delta);
+}
+
 void GameObject::Rotate(glm::vec3 rotation) {
   transform_.rotation += rotation;
 }
