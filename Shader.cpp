@@ -60,6 +60,11 @@ void Shader::SetFloat(std::string_view uniform, float value) const {
   glUniform1f(location, value);
 }
 
+void Shader::SetInt(std::string_view uniform, int value) const {
+  int location = GetUniformLocation(std::string(uniform));
+  glUniform1i(location, value);
+}
+
 std::string Shader::ReadFile(std::string_view path) {
   std::ifstream file(path.data());
   if (!file)

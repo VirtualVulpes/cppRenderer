@@ -7,11 +7,9 @@
 #include "Texture.h"
 #include "shader.h"
 
-class Texture;
-
 class GameObject {
 public:
-  GameObject(const Transform& transform, Mesh* mesh, Texture* texture, Shader* shader);
+  GameObject(const Transform& transform, Mesh* mesh, Texture* texture, Shader* shader, Texture* texture_s);
 
   void Draw() const;
   void Rotate(glm::vec3 rotation);
@@ -24,6 +22,7 @@ private:
   Mesh* mesh_{};
   Texture* texture_{};
   Shader* shader_{};
+  Texture* texture_s_{};
 
   glm::mat4 ComputeModelMatrix() const;
 };

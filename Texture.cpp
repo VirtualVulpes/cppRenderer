@@ -20,7 +20,7 @@ Texture::~Texture() {
 }
 
 void Texture::LoadFromFile(std::string_view path) {
-  Bind();
+  Bind(0);
 
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -42,8 +42,8 @@ void Texture::LoadFromFile(std::string_view path) {
   stbi_image_free(data);
 }
 
-void Texture::Bind() const {
-  glActiveTexture(GL_TEXTURE0);
+void Texture::Bind(unsigned int unit) const {
+  glActiveTexture(GL_TEXTURE0 + unit);
   glBindTexture(GL_TEXTURE_2D, id_);
 }
 
@@ -58,7 +58,7 @@ void Texture::SetMinFilter(GLenum filter) const {
 }
 
 void Texture::SetData(int width, int height, unsigned char* data) {
-  Bind();
+  Bind(0);
 
   width_ = width;
   height_ = height;

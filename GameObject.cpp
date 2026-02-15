@@ -1,19 +1,25 @@
 #include "GameObject.h"
 
+#include <iostream>
+
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtx/quaternion.hpp"
 
-GameObject::GameObject(const Transform& transform, Mesh* mesh, Texture* texture, Shader* shader)
+GameObject::GameObject(const Transform& transform, Mesh* mesh, Texture* texture, Shader* shader, Texture* texture_s)
   : transform_(transform)
   , mesh_(mesh)
   , texture_(texture)
-  , shader_(shader) {
+  , shader_(shader)
+  , texture_s_(texture_s) {
 }
 
 void GameObject::Draw() const {
   shader_->Use();
   shader_->SetMat4("model", ComputeModelMatrix());
-  texture_->Bind();
+  if (texture_s_ != nullptr) {
+    texture_s_->Bind(1);
+  }
+  texture_->Bind(0);
   mesh_->Draw();
 }
 

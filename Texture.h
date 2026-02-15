@@ -13,7 +13,7 @@ public:
 
   void LoadFromFile(std::string_view path);
   unsigned int GetId() const { return id_; }
-  void Bind() const;
+  void Bind(unsigned int unit) const;
 
   void SetMinFilter(GLenum filter) const;
   void SetMagFilter(GLenum filter) const;
