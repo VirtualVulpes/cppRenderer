@@ -5,8 +5,6 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtx/quaternion.hpp"
 
-bool drawTexture{true};
-
 GameObject::GameObject(const Transform& transform, Mesh* mesh, Texture* texture, Shader* shader, Texture* texture_s, glm::vec3 color)
   : transform_(transform)
   , mesh_(mesh)
@@ -19,14 +17,14 @@ GameObject::GameObject(const Transform& transform, Mesh* mesh, Texture* texture,
 void GameObject::Draw() const {
   shader_->SetMat4("model", ComputeModelMatrix());
   shader_->SetVec3("tint", color_);
-  if (drawTexture) {
+  if (Texture::kDrawTextures) {
     texture_->Bind(0);
     if (texture_s_ != nullptr) {
       texture_s_->Bind(1);
     }
   } else {
       glActiveTexture(GL_TEXTURE0);
-      glBindTexture(GL_TEXTURE_2D, 6 );
+      glBindTexture(GL_TEXTURE_2D, 6 ); // bind white texture
   }
 
 

@@ -19,6 +19,7 @@ public:
   void SetParameter(GLenum pname, int param) const;
   void SetData(int width, int height, unsigned char* data);
 
+  static bool kDrawTextures;
 private:
   unsigned int id_;
 
