@@ -24,7 +24,9 @@ void GameObject::Draw() const {
     }
   } else {
       glActiveTexture(GL_TEXTURE0);
-      glBindTexture(GL_TEXTURE_2D, 6 ); // bind white texture
+      glBindTexture(GL_TEXTURE_2D, 1); // bind tile texture
+      glActiveTexture(GL_TEXTURE1);
+      glBindTexture(GL_TEXTURE_2D, 2); // bind tile specular
   }
 
 

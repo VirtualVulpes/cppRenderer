@@ -56,6 +56,8 @@ void Application::Run() {
   Mesh cube_mesh{Geometry::Cube{}};
   Mesh plane_mesh{Geometry::Plane{}};
 
+  Texture tile_tex{"textures/tile.png"};
+  Texture tile_tex_s{"textures/tile_s.png"};
   Texture dirt_tex{"textures/dirt.png"};
   Texture dirt_tex_s{"textures/dirt_s.png"};
   Texture iron_tex{"textures/iron_block.png"};
@@ -102,7 +104,7 @@ void Application::Run() {
   objects.push_back(std::move(light));
   // White Spot
   t = {{8.0, 4.0, 8.0}, {-0.2f, -1.0f, -0.6f}, {0.2, 0.2, 0.2}};
-  light = CreateLight(lit, kSpot, glm::vec3(1.0, 1.0, 1.0), 0.6, t, &cube_mesh, &white_tex, &unlit);
+  light = CreateLight(lit, kSpot, glm::vec3(1.0, 1.0, 1.0), 1.6, t, &cube_mesh, &white_tex, &unlit);
   objects.push_back(std::move(light));
 
   Shader clouds{"shaders/clouds.vs", "shaders/clouds.fs"};
