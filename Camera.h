@@ -36,7 +36,7 @@ private:
   float sensitivity_{0.05f};
 
   float z_near_{0.1f};
-  float z_far_{250.0f};
+  float z_far_{1000.0f};
 
   float aspect_ratio_;
   bool is_projection_dirty_{true};

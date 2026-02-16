@@ -6,10 +6,10 @@ out vec4 FragColor;
 int maxSteps = 80;
 int lightSteps = 10;
 float absorption = 0.9;
-float cloudScale = 400.0;
+float cloudScale = 1000.0;
 
-float topHeight = 60.0;
-float bottomHeight = 35.0;
+float topHeight = 150.0;
+float bottomHeight = 100.0;
 
 #define MAX_DIST 100
 
@@ -51,8 +51,14 @@ bool intersection(vec3 ro, vec3 rd, out float tEnter, out float tExit)
 
 float sampleDensity(vec3 pos)
 {
-    vec4 data = texture(noiseTexture, pos.xz / vec2(cloudScale));
-    float density = clamp((data.r - data.g * 0.8 - (data.b * .1) - (data.a * .01)), 0.0, 1.0);
+    float rData = texture(noiseTexture, pos.xz / vec2(cloudScale)).r;
+    float gData = texture(noiseTexture, pos.xz / vec2(cloudScale / 2)).g;
+    float bData = texture(noiseTexture, pos.xz / vec2(cloudScale / 16)).b;
+    float aData = texture(noiseTexture, pos.xz / vec2(cloudScale / 32)).b;
+
+    vec4 data = vec4(rData, gData, bData, aData);
+    //float density = clamp((data.r - data.g * 0.3 - (data.b * .2) - (data.a * .1)), 0.0, 1.0);
+    float density = clamp((data.r - data.g * 0.5 - data.a * 0.1), 0.0, 1.0);
 
     float heightPercent = (pos.y - bottomHeight) / (topHeight - bottomHeight);
     float heightMask = smoothstep(0.0, 0.45, heightPercent) * smoothstep(1.0, 0.2, heightPercent);
@@ -141,5 +147,6 @@ void main()
     }
 
     FragColor = sceneColor;
+    //FragColor = texture(screenTexture, TexCoords);
 }
 
