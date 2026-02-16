@@ -3,13 +3,13 @@
 in vec2 TexCoords;
 out vec4 FragColor;
 
-int maxSteps = 40;
-int lightSteps = 8;
+int maxSteps = 80;
+int lightSteps = 10;
 float absorption = 0.9;
-float cloudScale = 250.0;
+float cloudScale = 400.0;
 
-float topHeight = 40.0;
-float bottomHeight = 38.0;
+float topHeight = 60.0;
+float bottomHeight = 35.0;
 
 #define MAX_DIST 100
 
@@ -49,11 +49,16 @@ bool intersection(vec3 ro, vec3 rd, out float tEnter, out float tExit)
     return tExit >= max(tEnter, 0.0);
 }
 
-float sampleDensity(vec2 pos)
+float sampleDensity(vec3 pos)
 {
-    vec4 data = texture(noiseTexture, pos / vec2(cloudScale));
-    float density = clamp((data.r - data.g * .02 - data.b * .01 - data.a * .005), 0.0, 1.0);
-    return density;
+    vec4 data = texture(noiseTexture, pos.xz / vec2(cloudScale));
+    float density = clamp((data.r - data.g * 0.8 - (data.b * .1) - (data.a * .01)), 0.0, 1.0);
+
+    float heightPercent = (pos.y - bottomHeight) / (topHeight - bottomHeight);
+    float heightMask = smoothstep(0.0, 0.45, heightPercent) * smoothstep(1.0, 0.2, heightPercent);
+    heightMask;
+
+    return density * heightMask;
 }
 
 float beer(float density) { return exp(-density * absorption); }
@@ -75,17 +80,12 @@ float lightMarch(vec3 pos) {
 
     for (int i = 0; i < lightSteps; i++)
     {
-        density += sampleDensity(vec2(pos.x, pos.z)) * stepSize;
+        density += sampleDensity(pos) * stepSize;
         pos += lightDirection * vec3(stepSize);
     }
 
-    return beer(density);
+    return beer(density) + ((1 - beer(density)) * 0.3);
 }
-
-//void main() {
-//    vec3 col = texture(screenTexture, TexCoords).rgb;
-//    FragColor = vec4(col, 1.0);
-//}
 
 void main()
 {
@@ -123,7 +123,7 @@ void main()
             vec3 pos = startPos + vec3(i + jitter) * rd * stepSize;
             if (abs(distance(ro, pos)) > linearDepth) break;
 
-            float density = sampleDensity(pos.xz);
+            float density = sampleDensity(pos);
             float extinction = density * stepSize * absorption;
 
             if (extinction < 1e-4) continue;
@@ -141,6 +141,5 @@ void main()
     }
 
     FragColor = sceneColor;
-    //FragColor = texture(screenTexture, TexCoords);
 }
 

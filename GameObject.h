@@ -9,7 +9,7 @@
 
 class GameObject {
 public:
-  GameObject(const Transform& transform, Mesh* mesh, Texture* texture, Shader* shader, Texture* texture_s);
+  GameObject(const Transform& transform, Mesh* mesh, Texture* texture, Shader* shader, Texture* texture_s, glm::vec3 color = {1.0, 1.0, 1.0});
 
   void Draw() const;
   void Rotate(glm::vec3 rotation);
@@ -23,6 +23,7 @@ private:
   Texture* texture_{};
   Shader* shader_{};
   Texture* texture_s_{};
+  glm::vec3 color_;
 
   glm::mat4 ComputeModelMatrix() const;
 };

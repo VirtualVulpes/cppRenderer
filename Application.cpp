@@ -19,7 +19,14 @@
 constexpr int kInitialWidth{1280};
 constexpr int kInitialHeight{720};
 
+enum LightType {
+  kDirectional,
+  kPoint,
+  kSpot
+};
+
 void CreateFloorMesh(std::vector<std::unique_ptr<GameObject>>& objects, Mesh* mesh, Texture* texture, Shader* shader, Texture* texture_s);
+std::unique_ptr<GameObject> CreateLight(const Shader& lit, LightType type, glm::vec3 color, float strength, Transform t, Mesh* m, Texture* tex, Shader* unlit);
 
 Application::Application() {
   if (!glfwInit())
@@ -55,9 +62,12 @@ void Application::Run() {
   Texture iron_tex_s{"textures/iron_block_s.png"};
   Texture grass_tex{"textures/grass_block_top.png"};
   Texture white_tex{"textures/white.png"};
+  Texture black_tex{"textures/black.png"};
   Texture noise_tex{"textures/noises.png"};
   noise_tex.SetParameter(GL_TEXTURE_WRAP_S, GL_REPEAT);
   noise_tex.SetParameter(GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+  std::vector<std::unique_ptr<GameObject>> objects;
 
   Shader unlit{"shaders/shader.vs", "shaders/unlit.fs"};
 
@@ -69,54 +79,31 @@ void Application::Run() {
   lit.SetInt("material.diffuse", 0);
   lit.SetInt("material.specular", 1);
 
-  // Direction light
-  lit.SetVec3("dirLight.direction", glm::vec3(1.0f, -1.0f, 1.0f));
-  lit.SetVec3("dirLight.ambient", glm::vec3(0.02f));
-  lit.SetVec3("dirLight.diffuse", glm::vec3(0.1f));
-  lit.SetVec3("dirLight.specular", glm::vec3(0.2f));
-
-  // Point light
-  lit.SetVec3("pointLights[0].position", glm::vec3(3.0f));
-  lit.SetFloat("pointLights[0].constant", 1.0f);
-  lit.SetFloat("pointLights[0].linear", 0.09f);
-  lit.SetFloat("pointLights[0].quadratic", 0.032f);
-  lit.SetVec3("pointLights[0].ambient", glm::vec3(0.2f));
-  lit.SetVec3("pointLights[0].diffuse", glm::vec3(0.0f, 0.0f, 1.0f));
-  lit.SetVec3("pointLights[0].specular", glm::vec3(0.0f, 0.0f, 1.0f));
-
-  lit.SetVec3("pointLights[1].position", glm::vec3(15.0f, 3.0f, 15.0f));
-  lit.SetFloat("pointLights[1].constant", 1.0f);
-  lit.SetFloat("pointLights[1].linear", 0.09f);
-  lit.SetFloat("pointLights[1].quadratic", 0.032f);
-  lit.SetVec3("pointLights[1].ambient", glm::vec3(0.2f));
-  lit.SetVec3("pointLights[1].diffuse", glm::vec3(0.2f));
-  lit.SetVec3("pointLights[1].specular", glm::vec3(1.0f));
-
-  lit.SetVec3("pointLights[2].position", glm::vec3(15.0f, 2.0f, 0.0f));
-  lit.SetFloat("pointLights[2].constant", 1.0f);
-  lit.SetFloat("pointLights[2].linear", 0.09f);
-  lit.SetFloat("pointLights[2].quadratic", 0.032f);
-  lit.SetVec3("pointLights[2].ambient", glm::vec3(0.2f));
-  lit.SetVec3("pointLights[2].diffuse", glm::vec3(0.9f, 0.1f, 0.2f));
-  lit.SetVec3("pointLights[2].specular", glm::vec3(1.0f, 0.0f, 0.0f));
-
-  lit.SetVec3("pointLights[3].position", glm::vec3(7.0f, 4.0f, 10.0f));
-  lit.SetFloat("pointLights[3].constant", 1.0f);
-  lit.SetFloat("pointLights[3].linear", 0.09f);
-  lit.SetFloat("pointLights[3].quadratic", 0.032f);
-  lit.SetVec3("pointLights[3].ambient", glm::vec3(0.2f));
-  lit.SetVec3("pointLights[3].diffuse", glm::vec3(0.1f, 0.9f, 0.2f));
-  lit.SetVec3("pointLights[3].specular", glm::vec3(0.0f, 1.0f, 0.0f));
-
-  // Spot light
-  lit.SetVec3("spotLight.position", {8.0, 4.0, 8.0});
-  lit.SetVec3("spotLight.direction", glm::vec3(-0.2f, -1.0f, -0.6f));
-  lit.SetFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
-  lit.SetFloat("spotLight.outerCutOff", glm::cos(glm::radians(17.5f)));
-  lit.SetVec3("spotLight.ambient", glm::vec3(0.2f));
-  lit.SetVec3("spotLight.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
-  lit.SetVec3("spotLight.specular", glm::vec3(1.0f));
-
+  // Directional
+  Transform t = {{0.0, 0.0, 0.0}, {1.0f, -1.0f, 1.0f}, {0.0, 0.0, 0.0}};
+  auto light = CreateLight(lit, kDirectional, glm::vec3(1.0, 1.0, 1.0), 1, t, &cube_mesh, &white_tex, &unlit);
+  objects.push_back(std::move(light));
+  // Blue Point
+  t = {{5.0, 3.0, 5.0}, {0.0f, 0.0f, 0.0f}, {0.2, 0.2, 0.2}};
+  light = CreateLight(lit, kPoint, glm::vec3(0.0, 0.0, 1.0), 1.3, t, &cube_mesh, &white_tex, &unlit);
+  GameObject* lightPtr = light.get();
+  objects.push_back(std::move(light));
+  // White Point
+  t = {{12.0, 3.0, 13}, {0.0f, 0.0f, 0.0f}, {0.2, 0.2, 0.2}};
+  light = CreateLight(lit, kPoint, glm::vec3(1.0, 1.0, 1.0), 1.0, t, &cube_mesh, &white_tex, &unlit);
+  objects.push_back(std::move(light));
+  // Red Point
+  t = {{11.0, 1.0, 4.0}, {0.0f, 0.0f, 0.0f}, {0.2, 0.2, 0.2}};
+  light = CreateLight(lit, kPoint, glm::vec3(1.0, 0.0, 0.0), 0.9, t, &cube_mesh, &white_tex, &unlit);
+  objects.push_back(std::move(light));
+  // Green Point
+  t = {{7.0, 2.0, 10.0}, {0.0f, 0.0f, 0.0f}, {0.2, 0.2, 0.2}};
+  light = CreateLight(lit, kPoint, glm::vec3(0.0, 1.0, 0.0), 0.8, t, &cube_mesh, &white_tex, &unlit);
+  objects.push_back(std::move(light));
+  // White Spot
+  t = {{8.0, 4.0, 8.0}, {-0.2f, -1.0f, -0.6f}, {0.2, 0.2, 0.2}};
+  light = CreateLight(lit, kSpot, glm::vec3(1.0, 1.0, 1.0), 0.6, t, &cube_mesh, &white_tex, &unlit);
+  objects.push_back(std::move(light));
 
   Shader clouds{"shaders/clouds.vs", "shaders/clouds.fs"};
   clouds.Use();
@@ -126,10 +113,8 @@ void Application::Run() {
   clouds.SetVec2("zPlanes", camera.GetZPlanes());
   clouds.SetMat4("projMatrix", camera.GetProjection());
 
-
-  std::vector<std::unique_ptr<GameObject>> objects;
   // dirt cube
-  Transform t{glm::vec3(8.0f, 0.0f, 9.0f)};
+  t = {glm::vec3(8.0f, 0.0f, 9.0f)};
   objects.push_back(std::make_unique<GameObject>(t, &cube_mesh, &dirt_tex, &lit, &dirt_tex_s));
   // stone cube
   t.pos = {7.0f, 1.0f, 6.0f};
@@ -137,11 +122,8 @@ void Application::Run() {
   // light cube
   t.pos = {8.0f, 2.0f, 4.0f};
   t.scale = {0.2f, 0.2f, 0.2f};
-  auto light = std::make_unique<GameObject>(t, &cube_mesh, &white_tex, &unlit, &white_tex);
-  GameObject* lightPtr = light.get();
-  objects.push_back(std::move(light));
   // floor plane
-  CreateFloorMesh(objects, &plane_mesh, &grass_tex, &lit, &white_tex );
+  CreateFloorMesh(objects, &plane_mesh, &grass_tex, &lit, &black_tex );
 
   float delta_time{0.0f};
   float last_frame{0.0f};
@@ -169,9 +151,9 @@ void Application::Run() {
       clouds.SetMat4("projMatrix", camera.GetProjection());
     }
 
+    lit.Use();
     lightPtr->Move(glm::vec3(cos(current_frame) * 0.02, 0.0f, sin(current_frame) * 0.02));
-    lit.SetVec3("light.position", lightPtr->GetPosition());
-    lit.SetVec3("light.direction", glm::vec3(0.0f, -1.0f, 0.0f));
+    lit.SetVec3("pointLights[0].position", lightPtr->GetPosition());
 
     msaa_framebuffer.Bind();
     renderer_->Clear();
@@ -208,5 +190,40 @@ void CreateFloorMesh(std::vector<std::unique_ptr<GameObject>>& objects, Mesh* me
       Transform t {glm::vec3(x, -0.5f, z), glm::vec3(-90.0f, 0.0f, 0.0f)};
       objects.push_back(std::make_unique<GameObject>(t, mesh, texture, shader, texture_s));
     }
+  }
+}
+
+std::unique_ptr<GameObject> CreateLight(const Shader& lit, LightType type, glm::vec3 color, float strength, Transform t, Mesh* m, Texture* tex, Shader* unlit) {
+  static int numPoints{0};
+
+  switch (type) {
+    case kDirectional:
+      lit.SetVec3("dirLight.direction", t.rotation);
+      lit.SetVec3("dirLight.ambient", color * strength * 0.02f);
+      lit.SetVec3("dirLight.diffuse", color * strength * 0.1f);
+      lit.SetVec3("dirLight.specular", color * strength * 0.2f);
+      t.scale *= strength;
+      return std::make_unique<GameObject>(t, m, tex, unlit, tex, color);
+    case kPoint:
+      lit.SetVec3(std::format("pointLights[{}].position", numPoints), t.pos);
+      lit.SetFloat(std::format("pointLights[{}].constant", numPoints), 1.0f);
+      lit.SetFloat(std::format("pointLights[{}].linear", numPoints), 0.09f);
+      lit.SetFloat(std::format("pointLights[{}].quadratic", numPoints), 0.032f);
+      lit.SetVec3(std::format("pointLights[{}].ambient", numPoints), color * strength * 0.2f);
+      lit.SetVec3(std::format("pointLights[{}].diffuse", numPoints), color * strength);
+      lit.SetVec3(std::format("pointLights[{}].specular", numPoints), color * strength);
+      numPoints += 1;
+      t.scale *= strength;
+      return std::make_unique<GameObject>(t, m, tex, unlit, tex, color);
+    case kSpot:
+      lit.SetVec3("spotLight.position", t.pos);
+      lit.SetVec3("spotLight.direction", t.rotation);
+      lit.SetFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
+      lit.SetFloat("spotLight.outerCutOff", glm::cos(glm::radians(17.5f)));
+      lit.SetVec3("spotLight.ambient", color * strength * 0.2f);
+      lit.SetVec3("spotLight.diffuse", color * strength);
+      lit.SetVec3("spotLight.specular", color * strength);
+      t.scale *= strength;
+      return std::make_unique<GameObject>(t, m, tex, unlit, tex, color);
   }
 }
