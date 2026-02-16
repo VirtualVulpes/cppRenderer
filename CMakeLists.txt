@@ -39,6 +39,8 @@ add_executable(cppRenderer
         Vertex.h
         Framebuffer.cpp
         Framebuffer.h
+        DirectionalLight.cpp
+        DirectionalLight.h
 )
 
 # Link GLAD and GLFW

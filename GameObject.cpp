@@ -5,18 +5,18 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtx/quaternion.hpp"
 
-GameObject::GameObject(const Transform& transform, Mesh* mesh, Texture* texture, Shader* shader, Texture* texture_s, glm::vec3 color)
+GameObject::GameObject(const Transform& transform, Mesh* mesh, Texture* texture, Shader* shader, Texture* texture_s, glm::vec3 tint)
   : transform_(transform)
   , mesh_(mesh)
   , texture_(texture)
   , shader_(shader)
   , texture_s_(texture_s)
-  , color_(color) {
+  , tint_(tint) {
 }
 
 void GameObject::Draw() const {
   shader_->SetMat4("model", ComputeModelMatrix());
-  shader_->SetVec3("tint", color_);
+  shader_->SetVec3("tint", tint_);
   if (Texture::kDrawTextures) {
     texture_->Bind(0);
     if (texture_s_ != nullptr) {

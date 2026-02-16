@@ -11,8 +11,9 @@
 #include "GameObject.h"
 #include "Geometry.h"
 #include "InputManager.h"
+#include "DirectionalLight.h"
 #include "Mesh.h"
-#include "shader.h"
+#include "Shader.h"
 #include "Texture.h"
 #include "WindowContext.h"
 
@@ -83,7 +84,9 @@ void Application::Run() {
 
   // Directional
   Transform t = {{0.0, 0.0, 0.0}, {1.0f, -1.0f, 1.0f}, {0.0, 0.0, 0.0}};
-  auto light = CreateLight(lit, kDirectional, glm::vec3(1.0, 1.0, 1.0), 1, t, &cube_mesh, &white_tex, &unlit);
+  auto light = CreateLight(lit, kDirectional, glm::vec3(1.0, 1.0, 1.0), 10, t, &cube_mesh, &white_tex, &unlit);
+  GameObject* dirLightGPtr = light.get();
+  DirectionalLight* dirLightPtr = dynamic_cast<DirectionalLight*>(dirLightGPtr);
   objects.push_back(std::move(light));
   // Blue Point
   t = {{5.0, 3.0, 5.0}, {0.0f, 0.0f, 0.0f}, {0.2, 0.2, 0.2}};
@@ -155,13 +158,12 @@ void Application::Run() {
 
     lit.Use();
     lightPtr->Move(glm::vec3(cos(current_frame) * 0.02, 0.0f, sin(current_frame) * 0.02));
+    dirLightPtr->SetColor(glm::vec3(0.0, 1.0, 0.0));
     lit.SetVec3("pointLights[0].position", lightPtr->GetPosition());
 
     msaa_framebuffer.Bind();
     renderer_->Clear();
-
     renderer_->Draw(objects, &camera);
-
     Framebuffer::Blit(msaa_framebuffer.GetId(), framebuffer.GetId(), width, height);
 
     clouds.Use();
@@ -205,7 +207,7 @@ std::unique_ptr<GameObject> CreateLight(const Shader& lit, LightType type, glm::
       lit.SetVec3("dirLight.diffuse", color * strength * 0.1f);
       lit.SetVec3("dirLight.specular", color * strength * 0.2f);
       t.scale *= strength;
-      return std::make_unique<GameObject>(t, m, tex, unlit, tex, color);
+      return std::make_unique<DirectionalLight>(t, m, tex, unlit, tex, color);
     case kPoint:
       lit.SetVec3(std::format("pointLights[{}].position", numPoints), t.pos);
       lit.SetFloat(std::format("pointLights[{}].constant", numPoints), 1.0f);
