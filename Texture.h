@@ -16,8 +16,7 @@ public:
   void Bind(unsigned int unit) const;
   static void Bind(unsigned int unit, unsigned int id);
 
-  void SetMinFilter(GLenum filter) const;
-  void SetMagFilter(GLenum filter) const;
+  void SetParameter(GLenum pname, int param) const;
   void SetData(int width, int height, unsigned char* data);
 
 private:

@@ -52,14 +52,9 @@ void Texture::Bind(unsigned int unit, unsigned int id) {
   glBindTexture(GL_TEXTURE_2D, id);
 }
 
-void Texture::SetMagFilter(GLenum filter) const {
+void Texture::SetParameter(GLenum pname, int param) const {
   glBindTexture(GL_TEXTURE_2D, id_);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
-}
-
-void Texture::SetMinFilter(GLenum filter) const {
-  glBindTexture(GL_TEXTURE_2D, id_);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
+  glTexParameteri(GL_TEXTURE_2D, pname, param);
 }
 
 void Texture::SetData(int width, int height, unsigned char* data) {

@@ -55,6 +55,11 @@ void Shader::SetVec3(std::string_view uniform, const glm::vec3& value) const {
   glUniform3fv(location, 1, glm::value_ptr(value));
 }
 
+void Shader::SetVec2(std::string_view uniform, const glm::vec2& value) const {
+  int location = GetUniformLocation(std::string(uniform));
+  glUniform2fv(location, 1, glm::value_ptr(value));
+}
+
 void Shader::SetFloat(std::string_view uniform, float value) const {
   int location = GetUniformLocation(std::string(uniform));
   glUniform1f(location, value);

@@ -14,12 +14,11 @@ GameObject::GameObject(const Transform& transform, Mesh* mesh, Texture* texture,
 }
 
 void GameObject::Draw() const {
-  shader_->Use();
   shader_->SetMat4("model", ComputeModelMatrix());
+  texture_->Bind(0);
   if (texture_s_ != nullptr) {
     texture_s_->Bind(1);
   }
-  texture_->Bind(0);
   mesh_->Draw();
 }
 

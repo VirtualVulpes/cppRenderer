@@ -21,6 +21,7 @@ void Renderer::Draw(const GameObject& object, Camera* camera) const {
 
   shader->SetMat4("view", camera->GetView());
   shader->SetVec3("viewPos", camera->GetPosition());
+  if (camera->IsProjectionDirty())
     shader->SetMat4("projection", camera->GetProjection());
 
   object.Draw();

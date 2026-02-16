@@ -36,6 +36,9 @@ Application::Application() {
 }
 
 void Application::Run() {
+  int width{kInitialWidth};
+  int height{kInitialHeight};
+
   Camera camera{glm::vec3(2.0f, 1.0f, 8.0f), 0.0f, -90.0f, static_cast<float>(kInitialWidth)/kInitialHeight};
 
   WindowContext context{&camera};
@@ -52,30 +55,19 @@ void Application::Run() {
   Texture iron_tex_s{"textures/iron_block_s.png"};
   Texture grass_tex{"textures/grass_block_top.png"};
   Texture white_tex{"textures/white.png"};
+  Texture noise_tex{"textures/noises.png"};
+  noise_tex.SetParameter(GL_TEXTURE_WRAP_S, GL_REPEAT);
+  noise_tex.SetParameter(GL_TEXTURE_WRAP_T, GL_REPEAT);
 
   Shader unlit{"shaders/shader.vs", "shaders/unlit.fs"};
+
   Shader lit{"shaders/shader.vs", "shaders/lit.fs"};
-  Shader clouds{"shaders/clouds.vs", "shaders/clouds.fs"};
-
-  std::vector<std::unique_ptr<GameObject>> objects;
-  // dirt cube
-  Transform t{glm::vec3(8.0f, 0.0f, 9.0f)};
-  objects.push_back(std::make_unique<GameObject>(t, &cube_mesh, &dirt_tex, &lit, &dirt_tex_s));
-  // stone cube
-  t.pos = {7.0f, 1.0f, 6.0f};
-  objects.push_back(std::make_unique<GameObject>(t, &cube_mesh, &iron_tex, &lit, &iron_tex_s));
-  // light cube
-  t.pos = {8.0f, 2.0f, 4.0f};
-  t.scale = {0.2f, 0.2f, 0.2f};
-  auto light = std::make_unique<GameObject>(t, &cube_mesh, &white_tex, &unlit, &white_tex);
-  GameObject* lightPtr = light.get();
-  objects.push_back(std::move(light));
-  // floor plane
-  CreateFloorMesh(objects, &plane_mesh, &grass_tex, &lit, &grass_tex );
-
   lit.Use();
+
   lit.SetVec3("viewPos", camera.GetPosition());
   lit.SetFloat("material.shininess", 32.0f);
+  lit.SetInt("material.diffuse", 0);
+  lit.SetInt("material.specular", 1);
 
   // Direction light
   lit.SetVec3("dirLight.direction", glm::vec3(1.0f, -1.0f, 1.0f));
@@ -108,7 +100,7 @@ void Application::Run() {
   lit.SetVec3("pointLights[2].diffuse", glm::vec3(0.9f, 0.1f, 0.2f));
   lit.SetVec3("pointLights[2].specular", glm::vec3(1.0f, 0.0f, 0.0f));
 
-  lit.SetVec3("pointLights[3].position", glm::vec3(0.0f, 4.0f, 15.0f));
+  lit.SetVec3("pointLights[3].position", glm::vec3(7.0f, 4.0f, 10.0f));
   lit.SetFloat("pointLights[3].constant", 1.0f);
   lit.SetFloat("pointLights[3].linear", 0.09f);
   lit.SetFloat("pointLights[3].quadratic", 0.032f);
@@ -125,11 +117,38 @@ void Application::Run() {
   lit.SetVec3("spotLight.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
   lit.SetVec3("spotLight.specular", glm::vec3(1.0f));
 
+
+  Shader clouds{"shaders/clouds.vs", "shaders/clouds.fs"};
+  clouds.Use();
+  clouds.SetInt("screenTexture", 0);
+  clouds.SetInt("depthTexture", 1);
+  clouds.SetInt("noiseTexture", 2);
+  clouds.SetVec2("zPlanes", camera.GetZPlanes());
+  clouds.SetMat4("projMatrix", camera.GetProjection());
+
+
+  std::vector<std::unique_ptr<GameObject>> objects;
+  // dirt cube
+  Transform t{glm::vec3(8.0f, 0.0f, 9.0f)};
+  objects.push_back(std::make_unique<GameObject>(t, &cube_mesh, &dirt_tex, &lit, &dirt_tex_s));
+  // stone cube
+  t.pos = {7.0f, 1.0f, 6.0f};
+  objects.push_back(std::make_unique<GameObject>(t, &cube_mesh, &iron_tex, &lit, &iron_tex_s));
+  // light cube
+  t.pos = {8.0f, 2.0f, 4.0f};
+  t.scale = {0.2f, 0.2f, 0.2f};
+  auto light = std::make_unique<GameObject>(t, &cube_mesh, &white_tex, &unlit, &white_tex);
+  GameObject* lightPtr = light.get();
+  objects.push_back(std::move(light));
+  // floor plane
+  CreateFloorMesh(objects, &plane_mesh, &grass_tex, &lit, &white_tex );
+
   float delta_time{0.0f};
   float last_frame{0.0f};
 
   Mesh screen_quad{Geometry::Quad{}};
-  Framebuffer framebuffer{kInitialWidth, kInitialHeight};
+  Framebuffer msaa_framebuffer{width, height, true};
+  Framebuffer framebuffer{width, height, false};
 
   while (!should_close_) {
     window_->PollEvents();
@@ -142,18 +161,33 @@ void Application::Run() {
     if (input.keys.escape)
       Close();
     camera.Update(input, delta_time);
+    if (camera.IsProjectionDirty()) {
+      glfwGetFramebufferSize(window_->GetHandle(), &width, &height);
+      framebuffer.Resize(width, height);
+      msaa_framebuffer.Resize(width, height);
+      clouds.SetVec2("screenSize", glm::vec2(width, height));
+      clouds.SetMat4("projMatrix", camera.GetProjection());
+    }
 
     lightPtr->Move(glm::vec3(cos(current_frame) * 0.02, 0.0f, sin(current_frame) * 0.02));
     lit.SetVec3("light.position", lightPtr->GetPosition());
     lit.SetVec3("light.direction", glm::vec3(0.0f, -1.0f, 0.0f));
 
-    framebuffer.Bind();
+    msaa_framebuffer.Bind();
     renderer_->Clear();
+
     renderer_->Draw(objects, &camera);
-    Framebuffer::Unbind();
+
+    Framebuffer::Blit(msaa_framebuffer.GetId(), framebuffer.GetId(), width, height);
 
     clouds.Use();
+    clouds.SetMat4("viewMatrix", camera.GetView());
+    clouds.SetVec3("cameraPos", camera.GetPosition());
+
     Texture::Bind(0, framebuffer.GetColorAttachment());
+    Texture::Bind(1, framebuffer.GetDepthAttachment());
+    noise_tex.Bind(2);
+
     screen_quad.Draw();
 
     camera.ClearProjectionDirtyFlag();

@@ -20,6 +20,7 @@ public:
   bool IsProjectionDirty() const { return is_projection_dirty_; }
   void ClearProjectionDirtyFlag() { is_projection_dirty_ = false; }
   void SetAspectRatio(float aspect_ratio);
+  glm::vec2 GetZPlanes() const { return {z_near_, z_far_}; };
 
 private:
   glm::vec3 pos_;
@@ -35,7 +36,7 @@ private:
   float sensitivity_{0.05f};
 
   float z_near_{0.1f};
-  float z_far_{100.0f};
+  float z_far_{250.0f};
 
   float aspect_ratio_;
   bool is_projection_dirty_{true};

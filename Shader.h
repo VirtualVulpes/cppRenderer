@@ -14,6 +14,7 @@ public:
 
   void SetMat4(std::string_view uniform, const glm::mat4& value) const;
   void SetVec3(std::string_view uniform, const glm::vec3& value) const;
+  void SetVec2(std::string_view uniform, const glm::vec2& value) const;
   void SetFloat(std::string_view uniform, float value) const;
   void SetInt(std::string_view uniform, int value) const;
   void Use() const;

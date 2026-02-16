@@ -52,8 +52,6 @@ uniform SpotLight spotLight;
 uniform vec3 tint;
 uniform vec3 viewPos;
 
-uniform sampler2D textureSampler;
-
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir);
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 vec3 CalcSpotLight(SpotLight light, vec3 normal);
