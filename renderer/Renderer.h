@@ -13,7 +13,7 @@ public:
 
   static void Clear();
 
-  void PreDrawPass(const Camera& camera) const;
+  void PreDrawPass(Camera& camera) const;
   void DrawPass() const;
   void PostDrawPass(const Camera& camera) const;
 

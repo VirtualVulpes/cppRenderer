@@ -32,7 +32,7 @@ void Renderer::Clear() {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void Renderer::PreDrawPass(const Camera& camera) const {
+void Renderer::PreDrawPass(Camera& camera) const {
   lit_shader_.Use();
   lit_shader_.SetVec3("viewPos", camera.GetPosition());
   lit_shader_.SetMat4("view", camera.GetViewMatrix());
@@ -41,6 +41,7 @@ void Renderer::PreDrawPass(const Camera& camera) const {
     cloud_shader_.Use();
     cloud_shader_.SetMat4("projMatrix", camera.GetProjectionMatrix());
     cloud_shader_.SetVec2("zPlanes", camera.GetZPlanes());
+    camera.ClearProjectionDirtyFlag();
   }
 }
 

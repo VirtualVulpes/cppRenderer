@@ -143,7 +143,6 @@ void Application::Run() {
 
     screen_quad.Draw();
 
-    camera.ClearProjectionDirtyFlag();
     window_->SwapBuffers();
   }
 }
