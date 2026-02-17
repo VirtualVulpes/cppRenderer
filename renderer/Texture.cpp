@@ -53,7 +53,6 @@ void Texture::Bind(unsigned int unit, unsigned int id) {
 }
 
 void Texture::SetParameter(GLenum pname, int param) const {
-  glBindTexture(GL_TEXTURE_2D, id_);
   glTexParameteri(GL_TEXTURE_2D, pname, param);
 }
 

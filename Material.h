@@ -7,8 +7,8 @@
 
 struct Material {
   Shader* shader{};
-  Texture* diffuse_texture{};
-  Texture* specular_texture{};
+  uint32_t diffuse_texture{0};
+  uint32_t specular_texture{0};
   glm::vec3 tint_{1.0, 1.0, 1.0};
 };
 

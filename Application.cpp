@@ -56,16 +56,17 @@ void Application::Run() {
 
   texture_handler_.LoadFromFolder("textures/");
 
+  texture_handler_.Get("noises")->Bind(0);
   texture_handler_.Get("noises")->SetParameter(GL_TEXTURE_WRAP_S, GL_REPEAT);
   texture_handler_.Get("noises")->SetParameter(GL_TEXTURE_WRAP_T, GL_REPEAT);
   texture_handler_.Get("noises")->SetParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   texture_handler_.Get("noises")->SetParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-  Material default_mat{&renderer_->lit_shader_, texture_handler_.Get("tile_d"), texture_handler_.Get("tile_s")};
-  Material dirt_mat{&renderer_->lit_shader_, texture_handler_.Get("dirt"), texture_handler_.Get("dirt_s")};
-  Material iron_mat{&renderer_->lit_shader_, texture_handler_.Get("iron_block"), texture_handler_.Get("iron_block_s")};
-  Material grass_mat{&renderer_->lit_shader_, texture_handler_.Get("grass_block_top"), texture_handler_.Get("black")};
-  Material light_mat{&renderer_->unlit_shader_, texture_handler_.Get("white"), texture_handler_.Get("white")};
+  Material default_mat{&renderer_->lit_shader_, texture_handler_.GetId("tile"), texture_handler_.GetId("tile_s")};
+  Material dirt_mat{&renderer_->lit_shader_, texture_handler_.GetId("dirt"), texture_handler_.GetId("dirt_s")};
+  Material iron_mat{&renderer_->lit_shader_, texture_handler_.GetId("iron_block"), texture_handler_.GetId("iron_block_s")};
+  Material grass_mat{&renderer_->lit_shader_, texture_handler_.GetId("grass_block_top"), texture_handler_.GetId("black")};
+  Material light_mat{&renderer_->unlit_shader_, texture_handler_.GetId("white"), texture_handler_.GetId("white")};
 
   Renderable dirt_rend{&cube_mesh, &dirt_mat};
   Renderable iron_rend{&cube_mesh, &iron_mat};

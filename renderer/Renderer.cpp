@@ -64,15 +64,12 @@ void Renderer::Draw(const Renderable& renderable, const Transform& transform) co
   material->shader->Use();
   material->shader->SetMat4("model", transform.GetModelMatrix());
 
-  if (kDrawTextures && material->diffuse_texture && material->specular_texture) {
-    material->diffuse_texture->Bind(0);
-    material->specular_texture->Bind(1);
+  if (kDrawTextures) {
+    Texture::Bind(0, material->diffuse_texture);
+    Texture::Bind(1, material->specular_texture);
   } else {
-    // bind tile texture
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, context_.textures.GetId("tile"));
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, context_.textures.GetId("tile_s"));
+    Texture::Bind(0, context_.textures.GetId("tile"));
+    Texture::Bind(1, context_.textures.GetId("tile_s"));
   }
 
   renderable.mesh->Draw();
