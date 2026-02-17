@@ -3,6 +3,8 @@
 #include "glad/glad.h"
 #include <GL/gl.h>
 
+#include "../Color.h"
+
 constexpr bool kDrawTextures{false};
 
 Renderer::Renderer()
@@ -26,7 +28,7 @@ Renderer::Renderer()
 }
 
 void Renderer::Clear() {
-  glClearColor(0.471f, 0.655f, 1.0f, 1.0f);
+  glClearColor(Color::SkyBlue.r, Color::SkyBlue.g, Color::SkyBlue.b, 1.0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 

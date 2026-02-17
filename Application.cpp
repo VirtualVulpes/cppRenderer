@@ -7,6 +7,7 @@
 #include "stb_image.h"
 
 #include "Camera.h"
+#include "Color.h"
 #include "renderer/Framebuffer.h"
 #include "GameObject.h"
 #include "Geometry.h"
@@ -78,22 +79,22 @@ void Application::Run() {
 
   // Directional
   Transform t = {{0.0, 0.0, 0.0}, {1.0f, -1.0f, 1.0f}, {0.0, 0.0, 0.0}};
-  CreateLight(renderer_->lit_shader_, Light::kDirectional, glm::vec3(1.0, 1.0, 1.0), 1, t);
+  CreateLight(renderer_->lit_shader_, Light::kDirectional, Color::White, 1, t);
   // Blue Point
   t = {{5.0, 3.0, 5.0}, {0.0f, 0.0f, 0.0f}, {0.2, 0.2, 0.2}};
-  CreateLight(renderer_->lit_shader_, Light::kPoint, glm::vec3(0.0, 0.0, 1.0), 1.3, t);
+  CreateLight(renderer_->lit_shader_, Light::kPoint, Color::Blue, 1.3, t);
   // White Point
   t = {{12.0, 3.0, 13}, {0.0f, 0.0f, 0.0f}, {0.2, 0.2, 0.2}};
-  CreateLight(renderer_->lit_shader_, Light::kPoint, glm::vec3(1.0, 1.0, 1.0), 1.0, t);
+  CreateLight(renderer_->lit_shader_, Light::kPoint, Color::White, 1.0, t);
   // Red Point
   t = {{11.0, 1.0, 4.0}, {0.0f, 0.0f, 0.0f}, {0.2, 0.2, 0.2}};
-  CreateLight(renderer_->lit_shader_, Light::kPoint, glm::vec3(1.0, 0.0, 0.0), 0.9, t);
+  CreateLight(renderer_->lit_shader_, Light::kPoint, Color::Red, 0.9, t);
   // Green Point
   t = {{7.0, 2.0, 10.0}, {0.0f, 0.0f, 0.0f}, {0.2, 0.2, 0.2}};
-  CreateLight(renderer_->lit_shader_, Light::kPoint, glm::vec3(0.0, 1.0, 0.0), 0.8, t);
+  CreateLight(renderer_->lit_shader_, Light::kPoint, Color::Green, 0.8, t);
   // White Spot
   t = {{8.0, 4.0, 8.0}, {-0.2f, -1.0f, -0.6f}, {0.2, 0.2, 0.2}};
-  CreateLight(renderer_->lit_shader_, Light::kSpot, glm::vec3(1.0, 1.0, 1.0), 0.8, t);
+  CreateLight(renderer_->lit_shader_, Light::kSpot, Color::White, 0.8, t);
 
   // dirt cube
   t = {glm::vec3(8.0f, 0.0f, 9.0f)};

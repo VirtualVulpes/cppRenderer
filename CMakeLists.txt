@@ -42,6 +42,7 @@ add_executable(cppRenderer
         Light.h
         Material.h
         Renderable.h
+        Color.h
 )
 
 # Link GLAD and GLFW

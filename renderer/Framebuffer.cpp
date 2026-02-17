@@ -51,7 +51,6 @@ void Framebuffer::Invalidate() {
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width_, height_, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, color_attachment_, 0);
 
-
   // Depth
   glGenTextures(1, &depth_attachment_);
   glBindTexture(GL_TEXTURE_2D, depth_attachment_);
@@ -66,7 +65,6 @@ void Framebuffer::Invalidate() {
 
   if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
     throw std::runtime_error("Framebuffer not complete");
-
 
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
@@ -88,18 +86,15 @@ void Framebuffer::InvalidateMsaa() {
   glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4 , GL_RGBA8, width_, height_, GL_TRUE);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, color_attachment_, 0);
 
-
   // Depth
   glGenTextures(1, &depth_attachment_);
   glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, depth_attachment_);
-
 
   glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_DEPTH_COMPONENT24, width_, height_, GL_TRUE);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D_MULTISAMPLE, depth_attachment_, 0);
 
   if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
     throw std::runtime_error("Framebuffer not complete");
-
 
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
