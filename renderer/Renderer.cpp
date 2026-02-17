@@ -6,7 +6,7 @@
 #include "../Color.h"
 #include "../RenderContext.h"
 
-constexpr bool kDrawTextures{false};
+constexpr bool kDrawTextures{true};
 
 Renderer::Renderer(RenderContext context)
   : unlit_shader_("shaders/shader.vs", "shaders/unlit.fs")
