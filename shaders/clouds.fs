@@ -51,13 +51,12 @@ bool intersection(vec3 ro, vec3 rd, out float tEnter, out float tExit)
 float sampleDensity(vec3 pos)
 {
     float rData = texture(noiseTexture, pos.xz / vec2(cloudScale)).r;
-    float gData = texture(noiseTexture, pos.xz / vec2(cloudScale / 2)).g;
+    float gData = texture(noiseTexture, pos.xz / vec2(cloudScale)).g;
     float bData = texture(noiseTexture, pos.xz / vec2(cloudScale / 16)).b;
     float aData = texture(noiseTexture, pos.xz / vec2(cloudScale / 32)).b;
 
     vec4 data = vec4(rData, gData, bData, aData);
-    //float density = clamp((data.r - data.g * 0.3 - (data.b * .2) - (data.a * .1)), 0.0, 1.0);
-    float density = clamp((data.r - data.g * 0.5 - data.a * 0.1), 0.0, 1.0);
+    float density = clamp((data.r - data.g * 0.7), 0.0, 1.0);
 
     float heightPercent = (pos.y - bottomHeight) / (topHeight - bottomHeight);
     float heightMask = smoothstep(0.0, 0.45, heightPercent) * smoothstep(1.0, 0.2, heightPercent);
@@ -89,7 +88,7 @@ float lightMarch(vec3 pos) {
         pos += lightDirection * vec3(stepSize);
     }
 
-    return beer(density) + ((1 - beer(density)) * 0.3);
+    return beer(density) + ((1 - beer(density)) * 0.4);
 }
 
 void main()

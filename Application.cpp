@@ -65,6 +65,8 @@ void Application::Run() {
   Texture noise_tex{"textures/noises.png"};
   noise_tex.SetParameter(GL_TEXTURE_WRAP_S, GL_REPEAT);
   noise_tex.SetParameter(GL_TEXTURE_WRAP_T, GL_REPEAT);
+  noise_tex.SetParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  noise_tex.SetParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   Material default_mat{&renderer_->lit_shader_, &tile_tex, &tile_tex_s};
   Material dirt_mat{&renderer_->lit_shader_, &dirt_tex, &dirt_tex_s};
