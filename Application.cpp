@@ -53,8 +53,9 @@ void Application::Run() {
   Mesh cube_mesh{Geometry::Cube{}};
   Mesh plane_mesh{Geometry::Plane{}};
 
-  Texture tile_tex{"textures/tile.png"};
-  Texture tile_tex_s{"textures/tile_s.png"};
+  texture_handler_.Load("tile_d", "textures/tile.png");
+  texture_handler_.Load("tile_s", "textures/tile_s.png");
+
   Texture dirt_tex{"textures/dirt.png"};
   Texture dirt_tex_s{"textures/dirt_s.png"};
   Texture iron_tex{"textures/iron_block.png"};
@@ -68,7 +69,7 @@ void Application::Run() {
   noise_tex.SetParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   noise_tex.SetParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-  Material default_mat{&renderer_->lit_shader_, &tile_tex, &tile_tex_s};
+  Material default_mat{&renderer_->lit_shader_, texture_handler_.Get("tile_d"), texture_handler_.Get("tile_s")};
   Material dirt_mat{&renderer_->lit_shader_, &dirt_tex, &dirt_tex_s};
   Material iron_mat{&renderer_->lit_shader_, &iron_tex, &iron_tex_s};
   Material grass_mat{&renderer_->lit_shader_, &grass_tex, &black_tex};

@@ -3,6 +3,7 @@
 
 #include <memory>
 
+#include "TextureHandler.h"
 #include "renderer/Renderer.h"
 #include "Window.h"
 
@@ -19,6 +20,7 @@ private:
 
   std::unique_ptr<Window> window_;
   std::unique_ptr<Renderer> renderer_;
+  TextureHandler texture_handler_;
   bool should_close_{false};
 };
 
