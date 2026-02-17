@@ -93,7 +93,7 @@ void Application::Run() {
   CreateLight(renderer_->lit_shader_, Light::kPoint, glm::vec3(0.0, 1.0, 0.0), 0.8, t);
   // White Spot
   t = {{8.0, 4.0, 8.0}, {-0.2f, -1.0f, -0.6f}, {0.2, 0.2, 0.2}};
-  CreateLight(renderer_->lit_shader_, Light::kSpot, glm::vec3(1.0, 1.0, 1.0), 0.2, t);
+  CreateLight(renderer_->lit_shader_, Light::kSpot, glm::vec3(1.0, 1.0, 1.0), 0.8, t);
 
   // dirt cube
   t = {glm::vec3(8.0f, 0.0f, 9.0f)};
