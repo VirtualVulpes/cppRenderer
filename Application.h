@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "Renderer.h"
+#include "renderer/Renderer.h"
 #include "Window.h"
 
 class Application {
@@ -14,6 +14,9 @@ public:
   void Close();
 
 private:
+  void CreateFloorMesh(Renderable* renderable) const;
+  void CreateLight(const Shader& lit, Light::LightType type, glm::vec3 color, float intensity, Transform t) const;
+
   std::unique_ptr<Window> window_;
   std::unique_ptr<Renderer> renderer_;
   bool should_close_{false};

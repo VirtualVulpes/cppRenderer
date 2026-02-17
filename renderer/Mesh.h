@@ -2,8 +2,8 @@
 #define CPPRENDERER_MESH_H
 #include <vector>
 
-#include "Vertex.h"
-#include "Geometry.h"
+#include "../Vertex.h"
+#include "../Geometry.h"
 
 class Mesh {
 public:
@@ -23,7 +23,6 @@ private:
   unsigned int vbo_;
   unsigned int ebo_;
 
-  bool is_indexed_{false};
   int vertex_count_;
 };
 

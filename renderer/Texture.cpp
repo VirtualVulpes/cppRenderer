@@ -2,10 +2,8 @@
 
 #include <iostream>
 
-#include "stb_image.h"
+#include "../stb_image.h"
 #include "glad/glad.h"
-
-bool Texture::kDrawTextures{false};
 
 Texture::Texture() {
   glGenTextures(1, &id_);

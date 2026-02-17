@@ -31,11 +31,11 @@ Window::~Window() {
   glfwTerminate();
 }
 
-void Window::SetActive() {
+void Window::SetActive() const {
   glfwMakeContextCurrent(window_);
 }
 
-void Window::Close() {
+void Window::Close() const {
   glfwSetWindowShouldClose(window_, true);
 }
 
@@ -57,15 +57,15 @@ void Window::FramebufferSizeCallback(GLFWwindow *window, const int width, const 
   context->camera->MarkProjectionDirty();
 }
 
-void Window::SetMouseCallback(GLFWcursorposfun callback) {
+void Window::SetMouseCallback(GLFWcursorposfun callback) const {
   glfwSetCursorPosCallback(window_, callback);
 }
 
-void Window::SetScrollCallback(GLFWcursorposfun callback) {
+void Window::SetScrollCallback(GLFWcursorposfun callback) const {
   glfwSetScrollCallback(window_, callback);
 }
 
-bool Window::ShouldClose() {
+bool Window::ShouldClose() const {
   return glfwWindowShouldClose(window_);
 }
 
@@ -73,6 +73,6 @@ void Window::PollEvents() {
   glfwPollEvents();
 }
 
-void Window::SwapBuffers() {
+void Window::SwapBuffers() const {
   glfwSwapBuffers(window_);
 }

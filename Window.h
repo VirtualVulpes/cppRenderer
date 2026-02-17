@@ -11,15 +11,15 @@ public:
   Window(int width, int height, std::string_view title);
   ~Window();
 
-  void SetMouseCallback(GLFWcursorposfun callback);
-  void SetScrollCallback(GLFWcursorposfun callback);
+  void SetMouseCallback(GLFWcursorposfun callback) const;
+  void SetScrollCallback(GLFWcursorposfun callback) const;
 
-  void SetActive();
-  bool ShouldClose();
-  void Close();
+  void SetActive() const;
+  bool ShouldClose() const;
+  void Close() const;
 
-  void PollEvents();
-  void SwapBuffers();
+  static void PollEvents();
+  void SwapBuffers() const;
 
   float GetAspectRatio() const;
 

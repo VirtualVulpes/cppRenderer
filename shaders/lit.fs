@@ -49,7 +49,7 @@ struct SpotLight {
 };
 uniform SpotLight spotLight;
 
-uniform vec3 tint;
+uniform vec3 tint = vec3(1.0);
 uniform vec3 viewPos;
 
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir);

@@ -9,6 +9,7 @@ target_include_directories(glad PUBLIC external/glad/include)
 
 # GLFW
 add_subdirectory(external/glfw)
+include_directories(renderer)
 
 # Executable
 add_executable(cppRenderer
@@ -23,24 +24,24 @@ add_executable(cppRenderer
         Window.h
         InputManager.cpp
         InputManager.h
-        Renderer.cpp
-        Renderer.h
-        Mesh.cpp
-        Mesh.h
-        GameObject.cpp
+        renderer/Renderer.cpp
+        renderer/Renderer.h
+        renderer/Mesh.cpp
+        renderer/Mesh.h
         GameObject.h
-        Texture.cpp
-        Texture.h
+        renderer/Texture.cpp
+        renderer/Texture.h
         Transform.h
         WindowContext.h
-        Shader.cpp
-        Shader.h
+        renderer/Shader.cpp
+        renderer/Shader.h
         Geometry.h
         Vertex.h
-        Framebuffer.cpp
-        Framebuffer.h
-        DirectionalLight.cpp
-        DirectionalLight.h
+        renderer/Framebuffer.cpp
+        renderer/Framebuffer.h
+        Light.h
+        Material.h
+        Renderable.h
 )
 
 # Link GLAD and GLFW

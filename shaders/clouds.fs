@@ -19,7 +19,6 @@ uniform sampler2D screenTexture;
 uniform sampler2D depthTexture;
 uniform sampler2D noiseTexture;
 
-uniform vec2 screenSize;
 uniform vec2 zPlanes;
 uniform mat4 projMatrix;
 
@@ -113,7 +112,7 @@ void main()
 
     if (intersection(ro, rd, tEnter, tExit))
     {
-        float jitter = fract(sin(dot(TexCoords * screenSize, vec2(12.9898,78.233))) * 43758.5453);
+        float jitter = fract(sin(dot(TexCoords * gl_FragCoord.xy, vec2(12.9898,78.233))) * 43758.5453);
 
         float t0 = max(tEnter, 0.0);
         vec3 startPos = ro + rd * vec3(t0);

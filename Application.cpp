@@ -7,27 +7,22 @@
 #include "stb_image.h"
 
 #include "Camera.h"
-#include "Framebuffer.h"
+#include "renderer/Framebuffer.h"
 #include "GameObject.h"
 #include "Geometry.h"
 #include "InputManager.h"
-#include "DirectionalLight.h"
-#include "Mesh.h"
-#include "Shader.h"
-#include "Texture.h"
+#include "Light.h"
+#include "Renderable.h"
+#include "renderer/Mesh.h"
+#include "renderer/Shader.h"
+#include "renderer/Texture.h"
 #include "WindowContext.h"
 
 constexpr int kInitialWidth{1280};
 constexpr int kInitialHeight{720};
 
-enum LightType {
-  kDirectional,
-  kPoint,
-  kSpot
-};
-
-void CreateFloorMesh(std::vector<std::unique_ptr<GameObject>>& objects, Mesh* mesh, Texture* texture, Shader* shader, Texture* texture_s);
-std::unique_ptr<GameObject> CreateLight(const Shader& lit, LightType type, glm::vec3 color, float strength, Transform t, Mesh* m, Texture* tex, Shader* unlit);
+void CreateFloorMesh(Renderable* renderable);
+void CreateLight(const Shader& lit, Light::LightType type, glm::vec3 color, float strength, Transform t);
 
 Application::Application() {
   if (!glfwInit())
@@ -70,65 +65,44 @@ void Application::Run() {
   noise_tex.SetParameter(GL_TEXTURE_WRAP_S, GL_REPEAT);
   noise_tex.SetParameter(GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-  std::vector<std::unique_ptr<GameObject>> objects;
+  Material default_mat{&renderer_->lit_shader_, &tile_tex, &tile_tex_s};
+  Material dirt_mat{&renderer_->lit_shader_, &dirt_tex, &dirt_tex_s};
+  Material iron_mat{&renderer_->lit_shader_, &iron_tex, &iron_tex_s};
+  Material grass_mat{&renderer_->lit_shader_, &grass_tex, &black_tex};
+  Material light_mat{&renderer_->unlit_shader_, &white_tex, &white_tex};
 
-  Shader unlit{"shaders/shader.vs", "shaders/unlit.fs"};
-
-  Shader lit{"shaders/shader.vs", "shaders/lit.fs"};
-  lit.Use();
-
-  lit.SetVec3("viewPos", camera.GetPosition());
-  lit.SetFloat("material.shininess", 32.0f);
-  lit.SetInt("material.diffuse", 0);
-  lit.SetInt("material.specular", 1);
+  Renderable dirt_rend{&cube_mesh, &dirt_mat};
+  Renderable iron_rend{&cube_mesh, &iron_mat};
+  Renderable grass_rend{&plane_mesh, &grass_mat};
+  Renderable light_rend{&cube_mesh, &light_mat};
 
   // Directional
   Transform t = {{0.0, 0.0, 0.0}, {1.0f, -1.0f, 1.0f}, {0.0, 0.0, 0.0}};
-  auto light = CreateLight(lit, kDirectional, glm::vec3(1.0, 1.0, 1.0), 10, t, &cube_mesh, &white_tex, &unlit);
-  GameObject* dirLightGPtr = light.get();
-  DirectionalLight* dirLightPtr = dynamic_cast<DirectionalLight*>(dirLightGPtr);
-  objects.push_back(std::move(light));
+  CreateLight(renderer_->lit_shader_, Light::kDirectional, glm::vec3(1.0, 1.0, 1.0), 1, t);
   // Blue Point
   t = {{5.0, 3.0, 5.0}, {0.0f, 0.0f, 0.0f}, {0.2, 0.2, 0.2}};
-  light = CreateLight(lit, kPoint, glm::vec3(0.0, 0.0, 1.0), 1.3, t, &cube_mesh, &white_tex, &unlit);
-  GameObject* lightPtr = light.get();
-  objects.push_back(std::move(light));
+  CreateLight(renderer_->lit_shader_, Light::kPoint, glm::vec3(0.0, 0.0, 1.0), 1.3, t);
   // White Point
   t = {{12.0, 3.0, 13}, {0.0f, 0.0f, 0.0f}, {0.2, 0.2, 0.2}};
-  light = CreateLight(lit, kPoint, glm::vec3(1.0, 1.0, 1.0), 1.0, t, &cube_mesh, &white_tex, &unlit);
-  objects.push_back(std::move(light));
+  CreateLight(renderer_->lit_shader_, Light::kPoint, glm::vec3(1.0, 1.0, 1.0), 1.0, t);
   // Red Point
   t = {{11.0, 1.0, 4.0}, {0.0f, 0.0f, 0.0f}, {0.2, 0.2, 0.2}};
-  light = CreateLight(lit, kPoint, glm::vec3(1.0, 0.0, 0.0), 0.9, t, &cube_mesh, &white_tex, &unlit);
-  objects.push_back(std::move(light));
+  CreateLight(renderer_->lit_shader_, Light::kPoint, glm::vec3(1.0, 0.0, 0.0), 0.9, t);
   // Green Point
   t = {{7.0, 2.0, 10.0}, {0.0f, 0.0f, 0.0f}, {0.2, 0.2, 0.2}};
-  light = CreateLight(lit, kPoint, glm::vec3(0.0, 1.0, 0.0), 0.8, t, &cube_mesh, &white_tex, &unlit);
-  objects.push_back(std::move(light));
+  CreateLight(renderer_->lit_shader_, Light::kPoint, glm::vec3(0.0, 1.0, 0.0), 0.8, t);
   // White Spot
   t = {{8.0, 4.0, 8.0}, {-0.2f, -1.0f, -0.6f}, {0.2, 0.2, 0.2}};
-  light = CreateLight(lit, kSpot, glm::vec3(1.0, 1.0, 1.0), 1.6, t, &cube_mesh, &white_tex, &unlit);
-  objects.push_back(std::move(light));
-
-  Shader clouds{"shaders/clouds.vs", "shaders/clouds.fs"};
-  clouds.Use();
-  clouds.SetInt("screenTexture", 0);
-  clouds.SetInt("depthTexture", 1);
-  clouds.SetInt("noiseTexture", 2);
-  clouds.SetVec2("zPlanes", camera.GetZPlanes());
-  clouds.SetMat4("projMatrix", camera.GetProjection());
+  CreateLight(renderer_->lit_shader_, Light::kSpot, glm::vec3(1.0, 1.0, 1.0), 0.2, t);
 
   // dirt cube
   t = {glm::vec3(8.0f, 0.0f, 9.0f)};
-  objects.push_back(std::make_unique<GameObject>(t, &cube_mesh, &dirt_tex, &lit, &dirt_tex_s));
-  // stone cube
+  renderer_->game_objects_.push_back(std::make_unique<GameObject>(&dirt_rend, t));
+  // iron cube
   t.pos = {7.0f, 1.0f, 6.0f};
-  objects.push_back(std::make_unique<GameObject>(t, &cube_mesh, &iron_tex, &lit, &iron_tex_s));
-  // light cube
-  t.pos = {8.0f, 2.0f, 4.0f};
-  t.scale = {0.2f, 0.2f, 0.2f};
+  renderer_->game_objects_.push_back(std::make_unique<GameObject>(&iron_rend, t));
   // floor plane
-  CreateFloorMesh(objects, &plane_mesh, &grass_tex, &lit, &black_tex );
+  CreateFloorMesh(&grass_rend);
 
   float delta_time{0.0f};
   float last_frame{0.0f};
@@ -138,7 +112,7 @@ void Application::Run() {
   Framebuffer framebuffer{width, height, false};
 
   while (!should_close_) {
-    window_->PollEvents();
+    Window::PollEvents();
 
     float current_frame = glfwGetTime();
     delta_time = current_frame - last_frame;
@@ -147,28 +121,20 @@ void Application::Run() {
     InputState input = input_manager.GetInput(*window_);
     if (input.keys.escape)
       Close();
+
     camera.Update(input, delta_time);
     if (camera.IsProjectionDirty()) {
       glfwGetFramebufferSize(window_->GetHandle(), &width, &height);
       framebuffer.Resize(width, height);
       msaa_framebuffer.Resize(width, height);
-      clouds.SetVec2("screenSize", glm::vec2(width, height));
-      clouds.SetMat4("projMatrix", camera.GetProjection());
     }
 
-    lit.Use();
-    lightPtr->Move(glm::vec3(cos(current_frame) * 0.02, 0.0f, sin(current_frame) * 0.02));
-    dirLightPtr->SetColor(glm::vec3(0.0, 1.0, 0.0));
-    lit.SetVec3("pointLights[0].position", lightPtr->GetPosition());
-
     msaa_framebuffer.Bind();
-    renderer_->Clear();
-    renderer_->Draw(objects, &camera);
+    Renderer::Clear();
+    renderer_->PreDrawPass(camera);
+    renderer_->DrawPass();
     Framebuffer::Blit(msaa_framebuffer.GetId(), framebuffer.GetId(), width, height);
-
-    clouds.Use();
-    clouds.SetMat4("viewMatrix", camera.GetView());
-    clouds.SetVec3("cameraPos", camera.GetPosition());
+    renderer_->PostDrawPass(camera);
 
     Texture::Bind(0, framebuffer.GetColorAttachment());
     Texture::Bind(1, framebuffer.GetDepthAttachment());
@@ -185,49 +151,49 @@ void Application::Close() {
   should_close_ = true;
 }
 
-void CreateFloorMesh(std::vector<std::unique_ptr<GameObject>>& objects, Mesh* mesh, Texture* texture, Shader* shader, Texture* texture_s) {
+void Application::CreateFloorMesh(Renderable* renderable) const {
   int width{16};
   int length{16};
 
   for (int z = 0; z < length; ++z) {
     for (int x = 0; x < width; ++x) {
       Transform t {glm::vec3(x, -0.5f, z), glm::vec3(-90.0f, 0.0f, 0.0f)};
-      objects.push_back(std::make_unique<GameObject>(t, mesh, texture, shader, texture_s));
+      renderer_->game_objects_.push_back(std::make_unique<GameObject>(renderable, t));
     }
   }
 }
 
-std::unique_ptr<GameObject> CreateLight(const Shader& lit, LightType type, glm::vec3 color, float strength, Transform t, Mesh* m, Texture* tex, Shader* unlit) {
+void Application::CreateLight(const Shader& lit, Light::LightType type, glm::vec3 color, float intensity, Transform t) const {
   static int numPoints{0};
+  lit.Use();
 
   switch (type) {
-    case kDirectional:
+    case Light::kDirectional:
       lit.SetVec3("dirLight.direction", t.rotation);
-      lit.SetVec3("dirLight.ambient", color * strength * 0.02f);
-      lit.SetVec3("dirLight.diffuse", color * strength * 0.1f);
-      lit.SetVec3("dirLight.specular", color * strength * 0.2f);
-      t.scale *= strength;
-      return std::make_unique<DirectionalLight>(t, m, tex, unlit, tex, color);
-    case kPoint:
+      lit.SetVec3("dirLight.ambient", color * intensity * 0.02f);
+      lit.SetVec3("dirLight.diffuse", color * intensity * 0.1f);
+      lit.SetVec3("dirLight.specular", color * intensity * 0.2f);
+      renderer_->directional_lights_.push_back(std::make_unique<Light::DirectionalLight>(t.rotation, color, intensity));
+    case Light::kPoint:
       lit.SetVec3(std::format("pointLights[{}].position", numPoints), t.pos);
       lit.SetFloat(std::format("pointLights[{}].constant", numPoints), 1.0f);
       lit.SetFloat(std::format("pointLights[{}].linear", numPoints), 0.09f);
       lit.SetFloat(std::format("pointLights[{}].quadratic", numPoints), 0.032f);
-      lit.SetVec3(std::format("pointLights[{}].ambient", numPoints), color * strength * 0.2f);
-      lit.SetVec3(std::format("pointLights[{}].diffuse", numPoints), color * strength);
-      lit.SetVec3(std::format("pointLights[{}].specular", numPoints), color * strength);
+      lit.SetVec3(std::format("pointLights[{}].ambient", numPoints), color * intensity * 0.2f);
+      lit.SetVec3(std::format("pointLights[{}].diffuse", numPoints), color * intensity);
+      lit.SetVec3(std::format("pointLights[{}].specular", numPoints), color * intensity);
       numPoints += 1;
-      t.scale *= strength;
-      return std::make_unique<GameObject>(t, m, tex, unlit, tex, color);
-    case kSpot:
+      t.scale *= intensity;
+      renderer_->point_lights_.push_back(std::make_unique<Light::PointLight>(t, color, intensity, 5.0f));
+    case Light::kSpot:
       lit.SetVec3("spotLight.position", t.pos);
       lit.SetVec3("spotLight.direction", t.rotation);
       lit.SetFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
       lit.SetFloat("spotLight.outerCutOff", glm::cos(glm::radians(17.5f)));
-      lit.SetVec3("spotLight.ambient", color * strength * 0.2f);
-      lit.SetVec3("spotLight.diffuse", color * strength);
-      lit.SetVec3("spotLight.specular", color * strength);
-      t.scale *= strength;
-      return std::make_unique<GameObject>(t, m, tex, unlit, tex, color);
+      lit.SetVec3("spotLight.ambient", color * intensity * 0.2f);
+      lit.SetVec3("spotLight.diffuse", color * intensity);
+      lit.SetVec3("spotLight.specular", color * intensity);
+      t.scale *= intensity;
+      renderer_->spot_lights_.push_back(std::make_unique<Light::SpotLight>(t, color, intensity));
   }
 }

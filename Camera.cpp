@@ -14,11 +14,11 @@ Camera::Camera(glm::vec3 pos, float pitch, float yaw, float aspect_ratio)
   UpdateCameraVectors();
 }
 
-glm::mat4 Camera::GetView() const {
+glm::mat4 Camera::GetViewMatrix() const {
   return glm::lookAt(pos_, pos_ + front_, up_);
 }
 
-glm::mat4 Camera::GetProjection() const {
+glm::mat4 Camera::GetProjectionMatrix() const {
   return glm::perspective(glm::radians(fov_), aspect_ratio_, z_near_, z_far_);
 }
 
