@@ -60,7 +60,7 @@ void Renderer::PostDrawPass(const Camera& camera) const {
 }
 
 void Renderer::Draw(const Renderable& renderable, const Transform& transform) const {
-  Material* material = renderable.material;
+  Material* material = context_.materials.GetPointer(renderable.material);
   material->shader->Use();
   material->shader->SetMat4("model", transform.GetModelMatrix());
 

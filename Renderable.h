@@ -5,6 +5,6 @@
 
 struct Renderable {
   Mesh* mesh;
-  Material* material;
+  uint32_t material;
 };
 #endif

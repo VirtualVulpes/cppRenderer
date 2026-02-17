@@ -3,6 +3,7 @@
 
 #include <memory>
 
+#include "MaterialHandler.h"
 #include "TextureHandler.h"
 #include "renderer/Renderer.h"
 #include "Window.h"
@@ -18,9 +19,10 @@ private:
   void CreateFloorMesh(Renderable* renderable) const;
   void CreateLight(const Shader& lit, Light::LightType type, glm::vec3 color, float intensity, Transform t) const;
 
-  std::unique_ptr<Window> window_;
-  TextureHandler texture_handler_;
-  std::unique_ptr<Renderer> renderer_;
+  std::unique_ptr<Window> window_{};
+  TextureHandler texture_handler_{};
+  MaterialHandler material_handler_{};
+  std::unique_ptr<Renderer> renderer_{};
   bool should_close_{false};
 };
 
