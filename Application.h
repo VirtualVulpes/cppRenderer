@@ -1,9 +1,7 @@
 #ifndef CPPRENDERER_APPLICATION_H
 #define CPPRENDERER_APPLICATION_H
 
-#include <memory>
-
-#include "MaterialHandler.h"
+#include "ResourceHandler.h"
 #include "TextureHandler.h"
 #include "renderer/Renderer.h"
 #include "Window.h"
@@ -17,11 +15,16 @@ public:
 
 private:
   void CreateFloorMesh(Renderable* renderable) const;
-  void CreateLight(const Shader& lit, Light::LightType type, glm::vec3 color, float intensity, Transform t) const;
+  void CreateLight(Shader* lit, Light::LightType type, glm::vec3 color, float intensity, Transform t) const;
+  void InitializeResources();
 
   std::unique_ptr<Window> window_{};
+
+  ResourceHandler<Mesh> mesh_handler_{};
   TextureHandler texture_handler_{};
-  MaterialHandler material_handler_{};
+  ResourceHandler<Material> material_handler_{};
+  ResourceHandler<Shader> shader_handler_{};
+
   std::unique_ptr<Renderer> renderer_{};
   bool should_close_{false};
 };

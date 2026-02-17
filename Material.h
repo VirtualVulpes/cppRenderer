@@ -6,7 +6,7 @@
 #include "glm/detail/type_vec3.hpp"
 
 struct Material {
-  Shader* shader{};
+  uint32_t shader{0};
   uint32_t diffuse_texture{0};
   uint32_t specular_texture{0};
   glm::vec3 tint_{1.0, 1.0, 1.0};

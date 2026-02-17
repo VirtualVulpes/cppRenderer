@@ -144,7 +144,7 @@ void main()
         sceneColor.rgb = sceneColor.rgb * transmittance + scatteredLight;
     }
 
-    //FragColor = sceneColor;
-    FragColor = texture(screenTexture, TexCoords);
+    FragColor = sceneColor;
+    //FragColor = texture(screenTexture, TexCoords);
 }
 

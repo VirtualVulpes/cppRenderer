@@ -4,7 +4,7 @@
 #include "Mesh.h"
 
 struct Renderable {
-  Mesh* mesh;
+  uint32_t mesh;
   uint32_t material;
 };
 #endif

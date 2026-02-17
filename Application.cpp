@@ -34,8 +34,11 @@ Application::Application() {
   if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress))
     throw std::runtime_error("Failed to initialize GLAD");
 
-  RenderContext context{texture_handler_, material_handler_};
-  renderer_ = std::make_unique<Renderer>(context);
+  InitializeResources();
+
+  RenderContext context{mesh_handler_, texture_handler_, material_handler_, shader_handler_};
+  Renderable light_rend{mesh_handler_.GetId("cube"), material_handler_.GetId("light")};
+  renderer_ = std::make_unique<Renderer>(context, light_rend);
 
   stbi_set_flip_vertically_on_load(true);
 }
@@ -51,46 +54,28 @@ void Application::Run() {
 
   InputManager input_manager{};
 
-  Mesh cube_mesh{Geometry::Cube{}};
-  Mesh plane_mesh{Geometry::Plane{}};
-
-  texture_handler_.LoadFromFolder("textures/");
-
-  texture_handler_.Get("noises")->Bind(0);
-  texture_handler_.Get("noises")->SetParameter(GL_TEXTURE_WRAP_S, GL_REPEAT);
-  texture_handler_.Get("noises")->SetParameter(GL_TEXTURE_WRAP_T, GL_REPEAT);
-  texture_handler_.Get("noises")->SetParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  texture_handler_.Get("noises")->SetParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-  material_handler_.Create("default", &renderer_->lit_shader_, texture_handler_.GetId("tile"), texture_handler_.GetId("tile_s"));
-  material_handler_.Create("dirt", &renderer_->lit_shader_, texture_handler_.GetId("dirt"), texture_handler_.GetId("dirt_s"));
-  material_handler_.Create("iron", &renderer_->lit_shader_, texture_handler_.GetId("iron_block"), texture_handler_.GetId("iron_block_s"));
-  material_handler_.Create("grass", &renderer_->lit_shader_, texture_handler_.GetId("grass_block_top"), texture_handler_.GetId("black"));
-  material_handler_.Create("light", &renderer_->unlit_shader_, texture_handler_.GetId("white"), texture_handler_.GetId("white"));
-
-  Renderable dirt_rend{&cube_mesh, material_handler_.GetId("dirt")};
-  Renderable iron_rend{&cube_mesh, material_handler_.GetId("iron")};
-  Renderable grass_rend{&plane_mesh, material_handler_.GetId("grass")};
-  Renderable light_rend{&cube_mesh, material_handler_.GetId("light")};
+  Renderable dirt_rend{mesh_handler_.GetId("cube"), material_handler_.GetId("dirt")};
+  Renderable iron_rend{mesh_handler_.GetId("cube"), material_handler_.GetId("iron")};
+  Renderable grass_rend{mesh_handler_.GetId("plane"), material_handler_.GetId("grass")};
 
   // Directional
   Transform t = {{0.0, 0.0, 0.0}, {1.0f, -1.0f, 1.0f}, {0.0, 0.0, 0.0}};
-  CreateLight(renderer_->lit_shader_, Light::kDirectional, Color::White, 1, t);
+  CreateLight(shader_handler_.GetPointer("lit"), Light::kDirectional, Color::White, 1, t);
   // Blue Point
   t = {{5.0, 3.0, 5.0}, {0.0f, 0.0f, 0.0f}, {0.2, 0.2, 0.2}};
-  CreateLight(renderer_->lit_shader_, Light::kPoint, Color::Blue, 1.3, t);
+  CreateLight(shader_handler_.GetPointer("lit"), Light::kPoint, Color::Blue, 1.6 , t);
   // White Point
   t = {{12.0, 3.0, 13}, {0.0f, 0.0f, 0.0f}, {0.2, 0.2, 0.2}};
-  CreateLight(renderer_->lit_shader_, Light::kPoint, Color::White, 1.0, t);
+  CreateLight(shader_handler_.GetPointer("lit"), Light::kPoint, Color::White, 1.0, t);
   // Red Point
   t = {{11.0, 1.0, 4.0}, {0.0f, 0.0f, 0.0f}, {0.2, 0.2, 0.2}};
-  CreateLight(renderer_->lit_shader_, Light::kPoint, Color::Red, 0.9, t);
+  CreateLight(shader_handler_.GetPointer("lit"), Light::kPoint, Color::Red, 0.9, t);
   // Green Point
   t = {{7.0, 2.0, 10.0}, {0.0f, 0.0f, 0.0f}, {0.2, 0.2, 0.2}};
-  CreateLight(renderer_->lit_shader_, Light::kPoint, Color::Green, 0.8, t);
+  CreateLight(shader_handler_.GetPointer("lit"), Light::kPoint, Color::Green, 0.8, t);
   // White Spot
   t = {{8.0, 4.0, 8.0}, {-0.2f, -1.0f, -0.6f}, {0.2, 0.2, 0.2}};
-  CreateLight(renderer_->lit_shader_, Light::kSpot, Color::White, 0.8, t);
+  CreateLight(shader_handler_.GetPointer("lit"), Light::kSpot, Color::White, 0.8, t);
 
   // dirt cube
   t = {glm::vec3(8.0f, 0.0f, 9.0f)};
@@ -159,40 +144,78 @@ void Application::CreateFloorMesh(Renderable* renderable) const {
   }
 }
 
-void Application::CreateLight(const Shader& lit, Light::LightType type, glm::vec3 color, float intensity, Transform t) const {
+void Application::CreateLight(Shader* lit, Light::LightType type, glm::vec3 color, float intensity, Transform t) const {
   static int numPoints{0};
-  lit.Use();
+  lit->Use();
 
   switch (type) {
     case Light::kDirectional:
-      lit.SetVec3("dirLight.direction", t.rotation);
-      lit.SetVec3("dirLight.ambient", color * intensity * 0.02f);
-      lit.SetVec3("dirLight.diffuse", color * intensity * 0.1f);
-      lit.SetVec3("dirLight.specular", color * intensity * 0.2f);
+      lit->SetVec3("dirLight.direction", t.rotation);
+      lit->SetVec3("dirLight.ambient", color * intensity * 0.02f);
+      lit->SetVec3("dirLight.diffuse", color * intensity * 0.1f);
+      lit->SetVec3("dirLight.specular", color * intensity * 0.2f);
       renderer_->directional_lights_.push_back(std::make_unique<Light::DirectionalLight>(t.rotation, color, intensity));
       return;
     case Light::kPoint:
-      lit.SetVec3(std::format("pointLights[{}].position", numPoints), t.pos);
-      lit.SetFloat(std::format("pointLights[{}].constant", numPoints), 1.0f);
-      lit.SetFloat(std::format("pointLights[{}].linear", numPoints), 0.09f);
-      lit.SetFloat(std::format("pointLights[{}].quadratic", numPoints), 0.032f);
-      lit.SetVec3(std::format("pointLights[{}].ambient", numPoints), color * intensity * 0.2f);
-      lit.SetVec3(std::format("pointLights[{}].diffuse", numPoints), color * intensity);
-      lit.SetVec3(std::format("pointLights[{}].specular", numPoints), color * intensity);
+      lit->SetVec3(std::format("pointLights[{}].position", numPoints), t.pos);
+      lit->SetFloat(std::format("pointLights[{}].constant", numPoints), 1.0f);
+      lit->SetFloat(std::format("pointLights[{}].linear", numPoints), 0.09f);
+      lit->SetFloat(std::format("pointLights[{}].quadratic", numPoints), 0.032f);
+      lit->SetVec3(std::format("pointLights[{}].ambient", numPoints), color * intensity * 0.2f);
+      lit->SetVec3(std::format("pointLights[{}].diffuse", numPoints), color * intensity);
+      lit->SetVec3(std::format("pointLights[{}].specular", numPoints), color * intensity);
       numPoints += 1;
       t.scale *= intensity;
       renderer_->point_lights_.push_back(std::make_unique<Light::PointLight>(t, color, intensity, 5.0f));
       return;
     case Light::kSpot:
-      lit.SetVec3("spotLight.position", t.pos);
-      lit.SetVec3("spotLight.direction", t.rotation);
-      lit.SetFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
-      lit.SetFloat("spotLight.outerCutOff", glm::cos(glm::radians(17.5f)));
-      lit.SetVec3("spotLight.ambient", color * intensity * 0.2f);
-      lit.SetVec3("spotLight.diffuse", color * intensity);
-      lit.SetVec3("spotLight.specular", color * intensity);
+      lit->SetVec3("spotLight.position", t.pos);
+      lit->SetVec3("spotLight.direction", t.rotation);
+      lit->SetFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
+      lit->SetFloat("spotLight.outerCutOff", glm::cos(glm::radians(17.5f)));
+      lit->SetVec3("spotLight.ambient", color * intensity * 0.2f);
+      lit->SetVec3("spotLight.diffuse", color * intensity);
+      lit->SetVec3("spotLight.specular", color * intensity);
       t.scale *= intensity;
       renderer_->spot_lights_.push_back(std::make_unique<Light::SpotLight>(t, color, intensity));
       return;
   }
+}
+
+void Application::InitializeResources() {
+  mesh_handler_.Create("cube", Geometry::Cube{});
+  mesh_handler_.Create("plane", Geometry::Plane{});
+
+  texture_handler_.LoadFromFolder("textures/");
+  texture_handler_.Get("noises")->Bind(0);
+  texture_handler_.Get("noises")->SetParameter(GL_TEXTURE_WRAP_S, GL_REPEAT);
+  texture_handler_.Get("noises")->SetParameter(GL_TEXTURE_WRAP_T, GL_REPEAT);
+  texture_handler_.Get("noises")->SetParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  texture_handler_.Get("noises")->SetParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+  shader_handler_.Create("lit", "shaders/shader.vs", "shaders/lit.fs");
+  shader_handler_.Create("unlit", "shaders/shader.vs", "shaders/unlit.fs");
+  shader_handler_.Create("clouds", "shaders/clouds.vs", "shaders/clouds.fs");
+
+  Shader* lit = shader_handler_.GetPointer("lit");
+  lit->Use();
+  lit->SetInt("material.diffuse", 0);
+  lit->SetInt("material.specular", 1);
+  lit->SetFloat("material.shininess", 32.0f);
+
+  Shader* unlit = shader_handler_.GetPointer("unlit");
+  unlit->Use();
+  unlit->SetInt("material.diffuse", 0);
+
+  Shader* clouds = shader_handler_.GetPointer("clouds");
+  clouds->Use();
+  clouds->SetInt("screenTexture", 0);
+  clouds->SetInt("depthTexture", 1);
+  clouds->SetInt("noiseTexture", 2);
+
+  material_handler_.Create("default", shader_handler_.GetId("lit"), texture_handler_.GetId("tile"), texture_handler_.GetId("tile_s"));
+  material_handler_.Create("dirt", shader_handler_.GetId("lit"), texture_handler_.GetId("dirt"), texture_handler_.GetId("dirt_s"));
+  material_handler_.Create("iron", shader_handler_.GetId("lit"), texture_handler_.GetId("iron_block"), texture_handler_.GetId("iron_block_s"));
+  material_handler_.Create("grass", shader_handler_.GetId("lit"), texture_handler_.GetId("grass_block_top"), texture_handler_.GetId("black"));
+  material_handler_.Create("light", shader_handler_.GetId("unlit"), texture_handler_.GetId("white"), texture_handler_.GetId("white"));
 }

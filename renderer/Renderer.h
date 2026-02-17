@@ -10,7 +10,7 @@
 
 class Renderer {
 public:
-  Renderer(RenderContext context);
+  Renderer(RenderContext context, Renderable renderables);
 
   static void Clear();
 
@@ -23,13 +23,10 @@ public:
   std::vector<std::unique_ptr<Light::PointLight>> point_lights_;
   std::vector<std::unique_ptr<Light::SpotLight>> spot_lights_;
 
-  Shader unlit_shader_;
-  Shader lit_shader_;
-  Shader cloud_shader_;
-
 private:
   void Draw(const Renderable& renderable, const Transform& transform) const;
   RenderContext context_;
+  Renderable light_debug_;
 };
 
 #endif

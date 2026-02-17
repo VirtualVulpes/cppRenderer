@@ -1,5 +1,7 @@
 #include "Renderer.h"
 
+#include <iostream>
+
 #include "glad/glad.h"
 #include <GL/gl.h>
 
@@ -7,26 +9,15 @@
 #include "../RenderContext.h"
 
 constexpr bool kDrawTextures{true};
+constexpr bool kDrawLights{false};
 
-Renderer::Renderer(RenderContext context)
-  : unlit_shader_("shaders/shader.vs", "shaders/unlit.fs")
-  , lit_shader_("shaders/shader.vs", "shaders/lit.fs")
-  , cloud_shader_("shaders/clouds.vs", "shaders/clouds.fs")
-  , context_(context) {
+Renderer::Renderer(RenderContext context, Renderable light_debug)
+  : context_(context)
+  , light_debug_(light_debug) {
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_MULTISAMPLE);
   glEnable(GL_CULL_FACE);
   //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-  lit_shader_.Use();
-  lit_shader_.SetInt("material.diffuse", 0);
-  lit_shader_.SetInt("material.specular", 1);
-  lit_shader_.SetFloat("material.shininess", 32.0f);
-
-  cloud_shader_.Use();
-  cloud_shader_.SetInt("screenTexture", 0);
-  cloud_shader_.SetInt("depthTexture", 1);
-  cloud_shader_.SetInt("noiseTexture", 2);
 }
 
 void Renderer::Clear() {
@@ -35,14 +26,23 @@ void Renderer::Clear() {
 }
 
 void Renderer::PreDrawPass(Camera& camera) const {
-  lit_shader_.Use();
-  lit_shader_.SetVec3("viewPos", camera.GetPosition());
-  lit_shader_.SetMat4("view", camera.GetViewMatrix());
+  Shader* lit = context_.shaders.GetPointer("lit");
+  Shader* unlit = context_.shaders.GetPointer("unlit");
+  Shader* clouds = context_.shaders.GetPointer("clouds");
+
+  lit->Use();
+  lit->SetVec3("viewPos", camera.GetPosition());
+  lit->SetMat4("view", camera.GetViewMatrix());
+  unlit->Use();
+  unlit->SetMat4("view", camera.GetViewMatrix());
   if (camera.IsProjectionDirty()) {
-    lit_shader_.SetMat4("projection", camera.GetProjectionMatrix());
-    cloud_shader_.Use();
-    cloud_shader_.SetMat4("projMatrix", camera.GetProjectionMatrix());
-    cloud_shader_.SetVec2("zPlanes", camera.GetZPlanes());
+    lit->Use();
+    lit->SetMat4("projection", camera.GetProjectionMatrix());
+    unlit->Use();
+    unlit->SetMat4("projection", camera.GetProjectionMatrix());
+    clouds->Use();
+    clouds->SetMat4("projMatrix", camera.GetProjectionMatrix());
+    clouds->SetVec2("zPlanes", camera.GetZPlanes());
     camera.ClearProjectionDirtyFlag();
   }
 }
@@ -51,18 +51,36 @@ void Renderer::DrawPass() const {
   for ( const auto& object : game_objects_) {
     Draw(*object->renderable, object->transform);
   }
+
+  if (!kDrawLights) return;
+
+  Shader* unlit = context_.shaders.GetPointer("unlit");
+  unlit->Use();
+
+  for (const auto& light : point_lights_) {
+    unlit->SetVec3("tint", light->color);
+    Draw(light_debug_, light->transform);
+  }
+
+  for (const auto& light : spot_lights_) {
+    unlit->SetVec3("tint", light->color);
+    Draw(light_debug_, light->transform);
+  }
 }
 
 void Renderer::PostDrawPass(const Camera& camera) const {
-  cloud_shader_.Use();
-  cloud_shader_.SetMat4("viewMatrix", camera.GetViewMatrix());
-  cloud_shader_.SetVec3("cameraPos", camera.GetPosition());
+  Shader* clouds = context_.shaders.GetPointer("clouds");
+
+  clouds->Use();
+  clouds->SetMat4("viewMatrix", camera.GetViewMatrix());
+  clouds->SetVec3("cameraPos", camera.GetPosition());
 }
 
 void Renderer::Draw(const Renderable& renderable, const Transform& transform) const {
   Material* material = context_.materials.GetPointer(renderable.material);
-  material->shader->Use();
-  material->shader->SetMat4("model", transform.GetModelMatrix());
+  Shader* shader = context_.shaders.GetPointer(material->shader);
+  shader->Use();
+  shader->SetMat4("model", transform.GetModelMatrix());
 
   if (kDrawTextures) {
     Texture::Bind(0, material->diffuse_texture);
@@ -72,5 +90,5 @@ void Renderer::Draw(const Renderable& renderable, const Transform& transform) co
     Texture::Bind(1, context_.textures.GetId("tile_s"));
   }
 
-  renderable.mesh->Draw();
+  context_.meshes.GetPointer(renderable.mesh)->Draw();
 }

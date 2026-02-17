@@ -46,8 +46,7 @@ add_executable(cppRenderer
         TextureHandler.cpp
         TextureHandler.h
         RenderContext.h
-        MaterialHandler.cpp
-        MaterialHandler.h
+        ResourceHandler.h
 )
 
 # Link GLAD and GLFW

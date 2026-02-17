@@ -1,12 +1,14 @@
 #ifndef CPPRENDERER_RENDERCONTEXT_H
 #define CPPRENDERER_RENDERCONTEXT_H
 
-#include "MaterialHandler.h"
+#include "ResourceHandler.h"
 #include "TextureHandler.h"
 
 struct RenderContext {
+  ResourceHandler<Mesh>& meshes;
   TextureHandler& textures;
-  MaterialHandler& materials;
+  ResourceHandler<Material>& materials;
+  ResourceHandler<Shader>& shaders;
 };
 
 #endif
