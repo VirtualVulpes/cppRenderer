@@ -19,8 +19,8 @@ private:
   void CreateLight(const Shader& lit, Light::LightType type, glm::vec3 color, float intensity, Transform t) const;
 
   std::unique_ptr<Window> window_;
-  std::unique_ptr<Renderer> renderer_;
   TextureHandler texture_handler_;
+  std::unique_ptr<Renderer> renderer_;
   bool should_close_{false};
 };
 

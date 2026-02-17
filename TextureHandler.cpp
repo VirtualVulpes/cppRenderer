@@ -1,6 +1,7 @@
 #include "TextureHandler.h"
 
 #include <filesystem>
+#include <format>
 #include <iostream>
 
 void TextureHandler::Load(std::string_view name, std::string_view path) {
@@ -25,4 +26,12 @@ Texture* TextureHandler::Get(std::string_view name) {
     return nullptr;
 
   return texIt->second.get();
+}
+
+uint32_t TextureHandler::GetId(std::string_view name) {
+  auto it = name_to_id_.find(std::string{name});
+  if (it == name_to_id_.end())
+    throw std::runtime_error(std::format("texture not found with name {}\n", std::string(name)));
+
+  return it->second;
 }

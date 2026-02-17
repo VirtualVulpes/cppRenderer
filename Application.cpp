@@ -34,7 +34,8 @@ Application::Application() {
   if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress))
     throw std::runtime_error("Failed to initialize GLAD");
 
-  renderer_ = std::make_unique<Renderer>();
+  RenderContext context{texture_handler_};
+  renderer_ = std::make_unique<Renderer>(context);
 
   stbi_set_flip_vertically_on_load(true);
 }

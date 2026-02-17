@@ -4,13 +4,15 @@
 #include <GL/gl.h>
 
 #include "../Color.h"
+#include "../RenderContext.h"
 
-constexpr bool kDrawTextures{true};
+constexpr bool kDrawTextures{false};
 
-Renderer::Renderer()
+Renderer::Renderer(RenderContext context)
   : unlit_shader_("shaders/shader.vs", "shaders/unlit.fs")
   , lit_shader_("shaders/shader.vs", "shaders/lit.fs")
-  , cloud_shader_("shaders/clouds.vs", "shaders/clouds.fs") {
+  , cloud_shader_("shaders/clouds.vs", "shaders/clouds.fs")
+  , context_(context) {
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_MULTISAMPLE);
   glEnable(GL_CULL_FACE);
@@ -68,9 +70,9 @@ void Renderer::Draw(const Renderable& renderable, const Transform& transform) co
   } else {
     // bind tile texture
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, 1);
+    glBindTexture(GL_TEXTURE_2D, context_.textures.GetId("tile"));
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, 2);
+    glBindTexture(GL_TEXTURE_2D, context_.textures.GetId("tile_s"));
   }
 
   renderable.mesh->Draw();

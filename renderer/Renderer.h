@@ -6,10 +6,11 @@
 #include "../Camera.h"
 #include "../GameObject.h"
 #include "../Light.h"
+#include "../RenderContext.h"
 
 class Renderer {
 public:
-  Renderer();
+  Renderer(RenderContext context);
 
   static void Clear();
 
@@ -28,6 +29,7 @@ public:
 
 private:
   void Draw(const Renderable& renderable, const Transform& transform) const;
+  RenderContext context_;
 };
 
 #endif
