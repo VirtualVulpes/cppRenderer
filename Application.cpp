@@ -53,27 +53,18 @@ void Application::Run() {
   Mesh cube_mesh{Geometry::Cube{}};
   Mesh plane_mesh{Geometry::Plane{}};
 
-  texture_handler_.Load("tile_d", "textures/tile.png");
-  texture_handler_.Load("tile_s", "textures/tile_s.png");
+  texture_handler_.LoadFromFolder("textures/");
 
-  Texture dirt_tex{"textures/dirt.png"};
-  Texture dirt_tex_s{"textures/dirt_s.png"};
-  Texture iron_tex{"textures/iron_block.png"};
-  Texture iron_tex_s{"textures/iron_block_s.png"};
-  Texture grass_tex{"textures/grass_block_top.png"};
-  Texture white_tex{"textures/white.png"};
-  Texture black_tex{"textures/black.png"};
-  Texture noise_tex{"textures/noises.png"};
-  noise_tex.SetParameter(GL_TEXTURE_WRAP_S, GL_REPEAT);
-  noise_tex.SetParameter(GL_TEXTURE_WRAP_T, GL_REPEAT);
-  noise_tex.SetParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  noise_tex.SetParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  texture_handler_.Get("noises")->SetParameter(GL_TEXTURE_WRAP_S, GL_REPEAT);
+  texture_handler_.Get("noises")->SetParameter(GL_TEXTURE_WRAP_T, GL_REPEAT);
+  texture_handler_.Get("noises")->SetParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  texture_handler_.Get("noises")->SetParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   Material default_mat{&renderer_->lit_shader_, texture_handler_.Get("tile_d"), texture_handler_.Get("tile_s")};
-  Material dirt_mat{&renderer_->lit_shader_, &dirt_tex, &dirt_tex_s};
-  Material iron_mat{&renderer_->lit_shader_, &iron_tex, &iron_tex_s};
-  Material grass_mat{&renderer_->lit_shader_, &grass_tex, &black_tex};
-  Material light_mat{&renderer_->unlit_shader_, &white_tex, &white_tex};
+  Material dirt_mat{&renderer_->lit_shader_, texture_handler_.Get("dirt"), texture_handler_.Get("dirt_s")};
+  Material iron_mat{&renderer_->lit_shader_, texture_handler_.Get("iron_block"), texture_handler_.Get("iron_block_s")};
+  Material grass_mat{&renderer_->lit_shader_, texture_handler_.Get("grass_block_top"), texture_handler_.Get("black")};
+  Material light_mat{&renderer_->unlit_shader_, texture_handler_.Get("white"), texture_handler_.Get("white")};
 
   Renderable dirt_rend{&cube_mesh, &dirt_mat};
   Renderable iron_rend{&cube_mesh, &iron_mat};
@@ -142,7 +133,7 @@ void Application::Run() {
 
     Texture::Bind(0, framebuffer.GetColorAttachment());
     Texture::Bind(1, framebuffer.GetDepthAttachment());
-    noise_tex.Bind(2);
+    texture_handler_.Get("noises")->Bind(2);
 
     screen_quad.Draw();
 
