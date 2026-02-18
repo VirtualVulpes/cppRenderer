@@ -62,6 +62,29 @@ struct Geometry {
     };
   };
 
+  struct CrossPlane {
+    /**
+     *
+     */
+    inline static const std::vector<Vertex> vertices = {
+      {{-0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+      {{ 0.5f, -0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
+      {{-0.5f,  0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}},
+      {{ 0.5f,  0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}},
+      {{-0.5f, -0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+      {{ 0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
+      {{-0.5f,  0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}},
+      {{ 0.5f,  0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}}
+    };
+
+    inline static const std::vector<uint32_t> indices = {
+      0, 1, 2,
+      2, 1, 3,
+      4, 5, 6,
+      6, 5, 7
+    };
+  };
+
   // screen-space quad
   struct Quad {
     inline static const std::vector<Vertex> vertices = {

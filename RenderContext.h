@@ -2,6 +2,10 @@
 #define CPPRENDERER_RENDERCONTEXT_H
 
 #include "ResourceHandler.h"
+#include "Mesh.h"
+#include "Shader.h"
+#include "Texture.h"
+#include "Material.h"
 
 struct RenderContext {
   ResourceHandler<Mesh>& meshes;

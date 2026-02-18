@@ -2,6 +2,7 @@
 #define CPPRENDERER_RENDERER_H
 
 #include <memory>
+#include <vector>
 
 #include "../Camera.h"
 #include "../GameObject.h"
@@ -15,9 +16,12 @@ public:
 
   static void Clear();
 
-  void PreDrawPass(Camera& camera) const;
-  void DrawPass() const;
-  void PostDrawPass(const Camera& camera) const;
+  void PreDrawPass(Camera& camera);
+  void DrawPass();
+  void PostDrawPass(const Camera& camera);
+
+  void EnableBackCull() { glEnable(GL_CULL_FACE); }
+  void DisableBackCull() { glDisable(GL_CULL_FACE); }
 
   std::vector<std::unique_ptr<GameObject>> game_objects_;
   std::vector<std::unique_ptr<Light::DirectionalLight>> directional_lights_;

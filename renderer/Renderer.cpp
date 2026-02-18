@@ -14,7 +14,7 @@ Renderer::Renderer(RenderContext context, Renderable light_debug, const RenderSe
   , settings_(settings) {
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_MULTISAMPLE);
-  glEnable(GL_CULL_FACE);
+  glEnable(GL_SAMPLE_ALPHA_TO_COVERAGE);
 }
 
 void Renderer::Clear() {
@@ -22,7 +22,7 @@ void Renderer::Clear() {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void Renderer::PreDrawPass(Camera& camera) const {
+void Renderer::PreDrawPass(Camera& camera) {
   Shader* lit = context_.shaders.GetPointer("lit");
   Shader* unlit = context_.shaders.GetPointer("unlit");
   Shader* clouds = context_.shaders.GetPointer("clouds");
@@ -44,13 +44,23 @@ void Renderer::PreDrawPass(Camera& camera) const {
   }
 }
 
-void Renderer::DrawPass() const {
+void Renderer::DrawPass() {
   if (settings_.drawWireframe)
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
   for ( const auto& object : game_objects_) {
-    Draw(*object->renderable, object->transform);
+    if (object->renderable->type == RenderType::Opaque)
+      Draw(*object->renderable, object->transform);
   }
+
+  DisableBackCull();
+
+  for ( const auto& object : game_objects_) {
+    if (object->renderable->type == RenderType::Cutout)
+      Draw(*object->renderable, object->transform);
+  }
+
+  EnableBackCull();
 
   if (settings_.debug.drawLights) {
     Shader* unlit = context_.shaders.GetPointer("unlit");
@@ -70,7 +80,7 @@ void Renderer::DrawPass() const {
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
-void Renderer::PostDrawPass(const Camera& camera) const {
+void Renderer::PostDrawPass(const Camera& camera) {
   Shader* clouds = context_.shaders.GetPointer("clouds");
 
   clouds->Use();

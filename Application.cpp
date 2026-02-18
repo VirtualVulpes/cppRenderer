@@ -77,6 +77,7 @@ void Application::Run() {
   Renderable dirt_rend{mesh_handler_.GetId("cube"), material_handler_.GetId("dirt")};
   Renderable iron_rend{mesh_handler_.GetId("cube"), material_handler_.GetId("iron")};
   Renderable grass_rend{mesh_handler_.GetId("plane"), material_handler_.GetId("grass")};
+  Renderable short_grass_rend{mesh_handler_.GetId("cross_plane"), material_handler_.GetId("short_grass"), RenderType::Cutout};
 
   // dirt cube
   t = {glm::vec3(8.0f, 0.0f, 9.0f)};
@@ -86,6 +87,13 @@ void Application::Run() {
   renderer_->game_objects_.push_back(std::make_unique<GameObject>(&iron_rend, t));
   // floor plane
   CreateFloorMesh(&grass_rend);
+  // short grass
+  t.pos = {7.0f, 0.0f, 7.0f};
+  renderer_->game_objects_.push_back(std::make_unique<GameObject>(&short_grass_rend, t));
+  t.pos = {4.0f, 0.0f, 4.0f};
+  renderer_->game_objects_.push_back(std::make_unique<GameObject>(&short_grass_rend, t));
+  t.pos = {12.0f, 0.0f, 5.0f};
+  renderer_->game_objects_.push_back(std::make_unique<GameObject>(&short_grass_rend, t));
 
   float delta_time{0.0f};
   float last_frame{0.0f};
@@ -191,6 +199,7 @@ void Application::CreateLight(Shader* lit, Light::LightType type, glm::vec3 colo
 void Application::InitializeResources() {
   mesh_handler_.Create("cube", Geometry::Cube{});
   mesh_handler_.Create("plane", Geometry::Plane{});
+  mesh_handler_.Create("cross_plane", Geometry::CrossPlane{});
 
   TextureLoader::LoadFromFolder("textures/", texture_handler_);
   const Texture* noises = texture_handler_.GetPointer("noises");
@@ -224,6 +233,7 @@ void Application::InitializeResources() {
   material_handler_.Create("dirt", shader_handler_.GetId("lit"), texture_handler_.GetId("dirt"), texture_handler_.GetId("dirt_s"));
   material_handler_.Create("iron", shader_handler_.GetId("lit"), texture_handler_.GetId("iron_block"), texture_handler_.GetId("iron_block_s"));
   material_handler_.Create("grass", shader_handler_.GetId("lit"), texture_handler_.GetId("grass_block_top"), texture_handler_.GetId("black"));
+  material_handler_.Create("short_grass", shader_handler_.GetId("lit"), texture_handler_.GetId("short_grass"), texture_handler_.GetId("black"));
   material_handler_.Create("light", shader_handler_.GetId("unlit"), texture_handler_.GetId("white"), texture_handler_.GetId("white"));
 }
 

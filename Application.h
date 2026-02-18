@@ -1,6 +1,7 @@
 #ifndef CPPRENDERER_APPLICATION_H
 #define CPPRENDERER_APPLICATION_H
 
+#include "Mesh.h"
 #include "ResourceHandler.h"
 #include "renderer/Renderer.h"
 #include "Window.h"

@@ -6,8 +6,6 @@
 #include <string_view>
 #include <unordered_map>
 
-#include "Shader.h"
-
 template <typename T>
 class ResourceHandler {
 public:
