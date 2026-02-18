@@ -43,13 +43,13 @@ add_executable(cppRenderer
         Material.h
         Renderable.h
         Color.h
-        TextureHandler.cpp
-        TextureHandler.h
         RenderContext.h
         ResourceHandler.h
         Settings.h
         input/Action.h
         input/KeyBindings.h
+        TextureLoader.cpp
+        TextureLoader.h
 )
 
 # Link GLAD and GLFW

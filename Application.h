@@ -2,7 +2,6 @@
 #define CPPRENDERER_APPLICATION_H
 
 #include "ResourceHandler.h"
-#include "TextureHandler.h"
 #include "renderer/Renderer.h"
 #include "Window.h"
 #include "input/InputManager.h"
@@ -26,7 +25,7 @@ private:
   std::unique_ptr<Window> window_;
 
   ResourceHandler<Mesh> mesh_handler_{};
-  TextureHandler texture_handler_{};
+  ResourceHandler<Texture> texture_handler_{};
   ResourceHandler<Material> material_handler_{};
   ResourceHandler<Shader> shader_handler_{};
 

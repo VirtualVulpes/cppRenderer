@@ -14,6 +14,7 @@
 #include "input/InputManager.h"
 #include "Light.h"
 #include "Renderable.h"
+#include "TextureLoader.h"
 #include "renderer/Mesh.h"
 #include "renderer/Shader.h"
 #include "renderer/Texture.h"
@@ -117,7 +118,7 @@ void Application::Run() {
 
     Texture::Bind(0, framebuffer.GetColorAttachment());
     Texture::Bind(1, framebuffer.GetDepthAttachment());
-    texture_handler_.Get("noises")->Bind(2);
+    texture_handler_.GetPointer("noises")->Bind(2);
 
     screen_quad.Draw();
 
@@ -183,12 +184,12 @@ void Application::InitializeResources() {
   mesh_handler_.Create("cube", Geometry::Cube{});
   mesh_handler_.Create("plane", Geometry::Plane{});
 
-  texture_handler_.LoadFromFolder("textures/");
-  texture_handler_.Get("noises")->Bind(0);
-  texture_handler_.Get("noises")->SetParameter(GL_TEXTURE_WRAP_S, GL_REPEAT);
-  texture_handler_.Get("noises")->SetParameter(GL_TEXTURE_WRAP_T, GL_REPEAT);
-  texture_handler_.Get("noises")->SetParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  texture_handler_.Get("noises")->SetParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  TextureLoader::LoadFromFolder("textures/", texture_handler_);
+  texture_handler_.GetPointer("noises")->Bind(0);
+  texture_handler_.GetPointer("noises")->SetParameter(GL_TEXTURE_WRAP_S, GL_REPEAT);
+  texture_handler_.GetPointer("noises")->SetParameter(GL_TEXTURE_WRAP_T, GL_REPEAT);
+  texture_handler_.GetPointer("noises")->SetParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  texture_handler_.GetPointer("noises")->SetParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   shader_handler_.Create("lit", "shaders/shader.vs", "shaders/lit.fs");
   shader_handler_.Create("unlit", "shaders/shader.vs", "shaders/unlit.fs");

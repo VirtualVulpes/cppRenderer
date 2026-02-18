@@ -29,7 +29,7 @@ void Texture::LoadFromFile(std::string_view path) {
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
   stbi_set_flip_vertically_on_load(true);
-
+  
   unsigned char* data =
       stbi_load(path.data(), &width_, &height_, &num_channels_, 4);
   if (!data)

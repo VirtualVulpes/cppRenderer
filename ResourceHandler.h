@@ -21,8 +21,8 @@ public:
   void Create(std::string_view name, Args&&... args) {
     uint32_t new_id = ++id_;
     name_to_id_.emplace(std::string{name}, new_id);
-    std::unique_ptr<T> material = std::make_unique<T>(std::forward<Args>(args)...);
-    id_to_resource_.emplace(new_id, std::move(material));
+    std::unique_ptr<T> resource = std::make_unique<T>(std::forward<Args>(args)...);
+    id_to_resource_.emplace(new_id, std::move(resource));
   }
 
   uint32_t GetId(std::string_view name) {
