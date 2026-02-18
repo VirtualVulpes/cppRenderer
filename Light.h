@@ -6,9 +6,9 @@
 namespace Light {
 
   enum LightType {
-    kDirectional,
-    kPoint,
-    kSpot
+    Directional,
+    Point,
+    Spot
   };
 
   struct DirectionalLight {

@@ -62,17 +62,17 @@ void Application::Run() {
   glfwSetWindowUserPointer(window_->GetHandle(), &context);
 
   Transform t = {{0.0, 0.0, 0.0}, {1.0f, -1.0f, 1.0f}, {0.0, 0.0, 0.0}};
-  CreateLight(shader_handler_.GetPointer("lit"), Light::kDirectional, Color::White, 1, t);
+  CreateLight(shader_handler_.GetPointer("lit"), Light::Directional, Color::White, 1, t);
   t = {{5.0, 3.0, 5.0}, {0.0f, 0.0f, 0.0f}, {0.2, 0.2, 0.2}};
-  CreateLight(shader_handler_.GetPointer("lit"), Light::kPoint, Color::Blue, 1.6 , t);
+  CreateLight(shader_handler_.GetPointer("lit"), Light::Point, Color::Blue, 1.6 , t);
   t = {{12.0, 3.0, 13}, {0.0f, 0.0f, 0.0f}, {0.2, 0.2, 0.2}};
-  CreateLight(shader_handler_.GetPointer("lit"), Light::kPoint, Color::White, 1.0, t);
+  CreateLight(shader_handler_.GetPointer("lit"), Light::Point, Color::White, 1.0, t);
   t = {{11.0, 1.0, 4.0}, {0.0f, 0.0f, 0.0f}, {0.2, 0.2, 0.2}};
-  CreateLight(shader_handler_.GetPointer("lit"), Light::kPoint, Color::Red, 1.2, t);
+  CreateLight(shader_handler_.GetPointer("lit"), Light::Point, Color::Red, 1.2, t);
   t = {{7.0, 2.0, 10.0}, {0.0f, 0.0f, 0.0f}, {0.2, 0.2, 0.2}};
-  CreateLight(shader_handler_.GetPointer("lit"), Light::kPoint, Color::Green, 0.6, t);
+  CreateLight(shader_handler_.GetPointer("lit"), Light::Point, Color::Green, 0.6, t);
   t = {{8.0, 4.0, 8.0}, {-0.2f, -1.0f, -0.6f}, {0.2, 0.2, 0.2}};
-  CreateLight(shader_handler_.GetPointer("lit"), Light::kSpot, Color::White, 0.8, t);
+  CreateLight(shader_handler_.GetPointer("lit"), Light::Spot, Color::White, 0.8, t);
 
   Renderable dirt_rend{mesh_handler_.GetId("cube"), material_handler_.GetId("dirt")};
   Renderable iron_rend{mesh_handler_.GetId("cube"), material_handler_.GetId("iron")};
@@ -147,14 +147,14 @@ void Application::CreateLight(Shader* lit, Light::LightType type, glm::vec3 colo
   lit->Use();
 
   switch (type) {
-    case Light::kDirectional:
+    case Light::Directional:
       lit->SetVec3("dirLight.direction", t.rotation);
       lit->SetVec3("dirLight.ambient", color * intensity * 0.02f);
       lit->SetVec3("dirLight.diffuse", color * intensity * 0.1f);
       lit->SetVec3("dirLight.specular", color * intensity * 0.2f);
       renderer_->directional_lights_.push_back(std::make_unique<Light::DirectionalLight>(t.rotation, color, intensity));
       return;
-    case Light::kPoint:
+    case Light::Point:
       lit->SetVec3(std::format("pointLights[{}].position", numPoints), t.pos);
       lit->SetFloat(std::format("pointLights[{}].constant", numPoints), 1.0f);
       lit->SetFloat(std::format("pointLights[{}].linear", numPoints), 0.09f);
@@ -166,7 +166,7 @@ void Application::CreateLight(Shader* lit, Light::LightType type, glm::vec3 colo
       t.scale *= intensity;
       renderer_->point_lights_.push_back(std::make_unique<Light::PointLight>(t, color, intensity, 5.0f));
       return;
-    case Light::kSpot:
+    case Light::Spot:
       lit->SetVec3("spotLight.position", t.pos);
       lit->SetVec3("spotLight.direction", t.rotation);
       lit->SetFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
