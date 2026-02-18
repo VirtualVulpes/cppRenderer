@@ -30,9 +30,10 @@ InputState::Keys InputManager::GetKeyInput(const Window& window) const {
   input.up       = IsActionPressed(Action::MoveUp, window);
   input.down     = IsActionPressed(Action::MoveDown, window);
 
-  input.toggleLightDebug = IsActionPressed(Action::ToggleLightDebug, window);
-  input.toggleWireframe  = IsActionPressed(Action::ToggleWireframe, window);
-  input.toogleDrawTextures     = IsActionPressed(Action::ToggleDrawTextures, window);
+  input.toggleLightDebug   = IsActionPressed(Action::ToggleLightDebug, window);
+  input.toggleWireframe    = IsActionPressed(Action::ToggleWireframe, window);
+  input.toggleDrawTextures = IsActionPressed(Action::ToggleDrawTextures, window);
+  input.toggleFullscreen   = IsActionPressed(Action::ToggleFullscreen, window);
 
   input.quit = IsActionPressed(Action::Quit, window);
   return input;

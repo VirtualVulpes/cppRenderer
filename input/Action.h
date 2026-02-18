@@ -14,6 +14,7 @@ enum class Action {
   ToggleWireframe,
   ToggleLightDebug,
   ToggleDrawTextures,
+  ToggleFullscreen,
 
   Quit
 };

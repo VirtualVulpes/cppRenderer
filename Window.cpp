@@ -4,8 +4,8 @@
 
 #include "WindowContext.h"
 
-Window::Window(int width, int height, std::string_view title)
-{
+Window::Window(WindowCoordinates coordinates, std::string_view title)
+  : coordinates_(coordinates) {
   // glfw: initialize and configure
   // ------------------------------
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -15,7 +15,7 @@ Window::Window(int width, int height, std::string_view title)
 
   // glfw window creation
   // --------------------
-  window_ = glfwCreateWindow(width, height, title.data(), nullptr, nullptr);
+  window_ = glfwCreateWindow(coordinates_.width, coordinates.height, title.data(), nullptr, nullptr);
   if (window_ == nullptr) {
     std::cout << "Failed to create GLFW window" << std::endl;
     glfwTerminate();
@@ -38,7 +38,6 @@ void Window::Close() const {
 float Window::GetAspectRatio() const {
   int width;
   int height;
-
   glfwGetFramebufferSize(window_, &width, &height);
 
   return static_cast<float>(width) / height;
@@ -71,4 +70,22 @@ void Window::PollEvents() {
 
 void Window::SwapBuffers() const {
   glfwSwapBuffers(window_);
+}
+
+void Window::ToggleFullscreen() {
+  if (!is_fullscreen_) {
+    UpdateCoordinates();
+
+    const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+    glfwSetWindowMonitor(window_, glfwGetPrimaryMonitor(), 0, 0, mode->width, mode->height, mode->refreshRate);
+  } else {
+    glfwSetWindowMonitor(window_, nullptr, coordinates_.x_pos, coordinates_.y_pos, coordinates_.width, coordinates_.height, 0);
+  }
+
+  is_fullscreen_ = !is_fullscreen_;
+}
+
+void Window::UpdateCoordinates() {
+  glfwGetFramebufferSize(window_, &coordinates_.width, &coordinates_.height);
+  glfwGetWindowPos(window_, &coordinates_.x_pos, &coordinates_.y_pos);
 }

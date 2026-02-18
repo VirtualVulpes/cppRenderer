@@ -8,7 +8,8 @@ int main()
   if (!glfwInit())
     throw std::runtime_error("Failed to initialize GLFW");
 
-  Window window{kInitialWidth, kInitialHeight, "Render Window"};
+  constexpr WindowCoordinates coordinates{kInitialWidth, kInitialHeight};
+  Window window{coordinates, "Render Window"};
 
   if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress))
     throw std::runtime_error("Failed to initialize GLAD");

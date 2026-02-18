@@ -4,19 +4,20 @@
 struct InputState {
   struct Keys {
     // Movement
-    bool forward{false};
-    bool backward{false};
-    bool right{false};
-    bool left{false};
-    bool up{false};
-    bool down{false};
+    bool forward;
+    bool backward;
+    bool right;
+    bool left;
+    bool up;
+    bool down;
 
     //Settings
-    bool toggleWireframe{false};
-    bool toggleLightDebug{false};
-    bool toogleDrawTextures{false};
+    bool toggleWireframe;
+    bool toggleLightDebug;
+    bool toggleDrawTextures;
+    bool toggleFullscreen;
 
-    bool quit{false};
+    bool quit;
   };
   Keys keys;
   Keys lastKeys;

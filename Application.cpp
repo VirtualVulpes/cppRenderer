@@ -214,9 +214,11 @@ void Application::InitializeKeybinds() {
   key_bindings_.keyboard.emplace(Action::ToggleWireframe, GLFW_KEY_Z);
   key_bindings_.keyboard.emplace(Action::ToggleLightDebug, GLFW_KEY_X);
   key_bindings_.keyboard.emplace(Action::ToggleDrawTextures, GLFW_KEY_C);
+  key_bindings_.keyboard.emplace(Action::ToggleFullscreen, GLFW_KEY_F11);
 
   key_bindings_.keyboard.emplace(Action::Quit, GLFW_KEY_ESCAPE);
 }
+
 
 void Application::HandleInput(Camera& camera, float delta_time) {
   InputState input = input_manager_.GetInput(*window_);
@@ -226,8 +228,10 @@ void Application::HandleInput(Camera& camera, float delta_time) {
     render_settings_.debug.drawLights = !render_settings_.debug.drawLights;
   if (input_manager_.IsJustPressed(&InputState::Keys::toggleWireframe))
     render_settings_.drawWireframe = !render_settings_.drawWireframe;
-  if (input_manager_.IsJustPressed(&InputState::Keys::toogleDrawTextures))
+  if (input_manager_.IsJustPressed(&InputState::Keys::toggleDrawTextures))
     render_settings_.drawTextures = !render_settings_.drawTextures;
+  if (input_manager_.IsJustPressed(&InputState::Keys::toggleFullscreen))
+    window_->ToggleFullscreen();
 
   camera.Update(input, delta_time);
 }
