@@ -22,9 +22,12 @@
 void CreateFloorMesh(Renderable* renderable);
 void CreateLight(const Shader& lit, Light::LightType type, glm::vec3 color, float strength, Transform t);
 
-Application::Application(Window& window)
-  : window_(&window)
+Application::Application()
+  : window_(std::make_unique<Window>(WindowCoordinates{1280, 720, 200, 200}, "Render Window"))
   , input_manager_(key_bindings_) {
+
+  if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress))
+    throw std::runtime_error("Failed to initialize GLAD");
 
   InitializeResources();
   InitializeKeybinds();
@@ -218,7 +221,6 @@ void Application::InitializeKeybinds() {
 
   key_bindings_.keyboard.emplace(Action::Quit, GLFW_KEY_ESCAPE);
 }
-
 
 void Application::HandleInput(Camera& camera, float delta_time) {
   InputState input = input_manager_.GetInput(*window_);

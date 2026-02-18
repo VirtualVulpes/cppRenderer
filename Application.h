@@ -10,7 +10,7 @@
 
 class Application {
 public:
-  Application(Window& window);
+  Application();
 
   void Run();
   void Close();
