@@ -49,6 +49,12 @@ public:
     return texIt->second.get();
   }
 
+  void Clear()
+  {
+    id_to_resource_.clear();
+    name_to_id_.clear();
+  }
+
 private:
   std::unordered_map<std::string, uint32_t> name_to_id_;
   std::unordered_map<uint32_t, std::unique_ptr<T> > id_to_resource_;

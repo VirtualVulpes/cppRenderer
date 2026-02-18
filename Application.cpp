@@ -39,6 +39,17 @@ Application::Application()
   stbi_set_flip_vertically_on_load(true);
 }
 
+Application::~Application()
+{
+  renderer_.reset();
+  shader_handler_.Clear();
+  material_handler_.Clear();
+  mesh_handler_.Clear();
+  texture_handler_.Clear();
+  window_.reset();
+  glfwTerminate();
+}
+
 void Application::Run() {
   int width{};
   int height{};

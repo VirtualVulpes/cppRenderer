@@ -35,3 +35,9 @@ uint32_t TextureHandler::GetId(std::string_view name) {
 
   return it->second;
 }
+
+void TextureHandler::Clear()
+{
+  id_to_texture_.clear();
+  name_to_id_.clear();
+}

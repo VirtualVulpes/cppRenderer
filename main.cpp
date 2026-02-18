@@ -8,6 +8,5 @@ int main()
   Application app{};
   app.Run();
 
-  glfwTerminate();
   return 0;
 }
