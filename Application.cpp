@@ -38,7 +38,7 @@ Application::Application() {
 
   RenderContext context{mesh_handler_, texture_handler_, material_handler_, shader_handler_};
   Renderable light_rend{mesh_handler_.GetId("cube"), material_handler_.GetId("light")};
-  renderer_ = std::make_unique<Renderer>(context, light_rend);
+  renderer_ = std::make_unique<Renderer>(context, light_rend, render_settings_);
 
   stbi_set_flip_vertically_on_load(true);
 }
@@ -58,22 +58,16 @@ void Application::Run() {
   Renderable iron_rend{mesh_handler_.GetId("cube"), material_handler_.GetId("iron")};
   Renderable grass_rend{mesh_handler_.GetId("plane"), material_handler_.GetId("grass")};
 
-  // Directional
   Transform t = {{0.0, 0.0, 0.0}, {1.0f, -1.0f, 1.0f}, {0.0, 0.0, 0.0}};
   CreateLight(shader_handler_.GetPointer("lit"), Light::kDirectional, Color::White, 1, t);
-  // Blue Point
   t = {{5.0, 3.0, 5.0}, {0.0f, 0.0f, 0.0f}, {0.2, 0.2, 0.2}};
   CreateLight(shader_handler_.GetPointer("lit"), Light::kPoint, Color::Blue, 1.6 , t);
-  // White Point
   t = {{12.0, 3.0, 13}, {0.0f, 0.0f, 0.0f}, {0.2, 0.2, 0.2}};
   CreateLight(shader_handler_.GetPointer("lit"), Light::kPoint, Color::White, 1.0, t);
-  // Red Point
   t = {{11.0, 1.0, 4.0}, {0.0f, 0.0f, 0.0f}, {0.2, 0.2, 0.2}};
-  CreateLight(shader_handler_.GetPointer("lit"), Light::kPoint, Color::Red, 0.9, t);
-  // Green Point
+  CreateLight(shader_handler_.GetPointer("lit"), Light::kPoint, Color::Red, 1.2, t);
   t = {{7.0, 2.0, 10.0}, {0.0f, 0.0f, 0.0f}, {0.2, 0.2, 0.2}};
-  CreateLight(shader_handler_.GetPointer("lit"), Light::kPoint, Color::Green, 0.8, t);
-  // White Spot
+  CreateLight(shader_handler_.GetPointer("lit"), Light::kPoint, Color::Green, 0.6, t);
   t = {{8.0, 4.0, 8.0}, {-0.2f, -1.0f, -0.6f}, {0.2, 0.2, 0.2}};
   CreateLight(shader_handler_.GetPointer("lit"), Light::kSpot, Color::White, 0.8, t);
 
@@ -103,6 +97,7 @@ void Application::Run() {
     InputState input = input_manager.GetInput(*window_);
     if (input.keys.escape)
       Close();
+
 
     camera.Update(input, delta_time);
     if (camera.IsProjectionDirty()) {

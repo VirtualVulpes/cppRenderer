@@ -7,10 +7,11 @@
 #include "../GameObject.h"
 #include "../Light.h"
 #include "../RenderContext.h"
+#include "../Settings.h"
 
 class Renderer {
 public:
-  Renderer(RenderContext context, Renderable renderables);
+  Renderer(RenderContext context, Renderable renderables, const RenderSettings& settings);
 
   static void Clear();
 
@@ -27,6 +28,7 @@ private:
   void Draw(const Renderable& renderable, const Transform& transform) const;
   RenderContext context_;
   Renderable light_debug_;
+  const RenderSettings& settings_;
 };
 
 #endif

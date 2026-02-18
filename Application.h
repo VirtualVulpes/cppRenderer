@@ -27,6 +27,8 @@ private:
 
   std::unique_ptr<Renderer> renderer_{};
   bool should_close_{false};
+
+  RenderSettings render_settings_{};
 };
 
 #endif

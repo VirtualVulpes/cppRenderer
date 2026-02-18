@@ -8,16 +8,13 @@
 #include "../Color.h"
 #include "../RenderContext.h"
 
-constexpr bool kDrawTextures{true};
-constexpr bool kDrawLights{false};
-
-Renderer::Renderer(RenderContext context, Renderable light_debug)
+Renderer::Renderer(RenderContext context, Renderable light_debug, const RenderSettings& settings)
   : context_(context)
-  , light_debug_(light_debug) {
+  , light_debug_(light_debug)
+  , settings_(settings) {
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_MULTISAMPLE);
   glEnable(GL_CULL_FACE);
-  //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }
 
 void Renderer::Clear() {
@@ -48,11 +45,17 @@ void Renderer::PreDrawPass(Camera& camera) const {
 }
 
 void Renderer::DrawPass() const {
+  if (settings_.drawWireframe) {
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  } else {
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  }
+
   for ( const auto& object : game_objects_) {
     Draw(*object->renderable, object->transform);
   }
 
-  if (!kDrawLights) return;
+  if (!settings_.debug.drawLights) return;
 
   Shader* unlit = context_.shaders.GetPointer("unlit");
   unlit->Use();
@@ -82,7 +85,7 @@ void Renderer::Draw(const Renderable& renderable, const Transform& transform) co
   shader->Use();
   shader->SetMat4("model", transform.GetModelMatrix());
 
-  if (kDrawTextures) {
+  if (settings_.drawTextures) {
     Texture::Bind(0, material->diffuse_texture);
     Texture::Bind(1, material->specular_texture);
   } else {
