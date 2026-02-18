@@ -156,6 +156,7 @@ void Application::CreateLight(Shader* lit, Light::LightType type, glm::vec3 colo
       lit->SetVec3(std::format("dirLights[{}].diffuse", num_dir_lights), color * intensity * 0.1f);
       lit->SetVec3(std::format("dirLights[{}].specular", num_dir_lights), color * intensity * 0.2f);
       num_dir_lights++;
+      lit->SetInt("num_dir_lights", num_dir_lights);
       renderer_->directional_lights_.push_back(std::make_unique<Light::DirectionalLight>(t.rotation, color, intensity));
       return;
     case Light::Point:
@@ -167,6 +168,7 @@ void Application::CreateLight(Shader* lit, Light::LightType type, glm::vec3 colo
       lit->SetVec3(std::format("pointLights[{}].diffuse", num_point_lights), color * intensity);
       lit->SetVec3(std::format("pointLights[{}].specular", num_point_lights), color * intensity);
       num_point_lights++;
+      lit->SetInt("num_point_lights", num_point_lights);
       t.scale *= intensity;
       renderer_->point_lights_.push_back(std::make_unique<Light::PointLight>(t, color, intensity, 5.0f));
       return;
@@ -179,6 +181,7 @@ void Application::CreateLight(Shader* lit, Light::LightType type, glm::vec3 colo
       lit->SetVec3(std::format("spotLights[{}].diffuse", num_spot_lights), color * intensity);
       lit->SetVec3(std::format("spotLights[{}].specular", num_spot_lights), color * intensity);
       num_spot_lights++;
+      lit->SetInt("num_spot_lights", num_spot_lights);
       t.scale *= intensity;
       renderer_->spot_lights_.push_back(std::make_unique<Light::SpotLight>(t, color, intensity));
       return;

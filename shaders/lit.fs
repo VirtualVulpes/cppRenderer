@@ -5,9 +5,9 @@ in vec3 Normal;
 in vec3 FragPos;
 in vec2 TexCoords;
 
-#define NUM_DIR_LIGHTS 1
-#define NUM_POINT_LIGHTS 4
-#define NUM_SPOT_LIGHTS 1
+#define MAX_NUM_DIR_LIGHTS 10
+#define MAX_NUM_POINT_LIGHTS 10
+#define MAX_NUM_SPOT_LIGHTS 10
 
 struct Material {
     sampler2D diffuse;
@@ -24,7 +24,8 @@ struct DirLight
     vec3 diffuse;
     vec3 specular;
 };
-uniform DirLight dirLights[NUM_DIR_LIGHTS];
+uniform DirLight dirLights[MAX_NUM_DIR_LIGHTS];
+uniform int num_dir_lights = 0;
 
 struct PointLight
 {
@@ -38,7 +39,8 @@ struct PointLight
     vec3 diffuse;
     vec3 specular;
 };
-uniform PointLight pointLights[NUM_POINT_LIGHTS];
+uniform PointLight pointLights[MAX_NUM_POINT_LIGHTS];
+uniform int num_point_lights = 0;
 
 struct SpotLight {
     vec3 position;
@@ -50,7 +52,8 @@ struct SpotLight {
     vec3 diffuse;
     vec3 specular;
 };
-uniform SpotLight spotLights[NUM_SPOT_LIGHTS];
+uniform SpotLight spotLights[MAX_NUM_SPOT_LIGHTS];
+uniform int num_spot_lights = 0;
 
 uniform vec3 tint = vec3(1.0);
 uniform vec3 viewPos;
@@ -66,15 +69,15 @@ void main()
 
     vec3 result = vec3(0.0);
 
-    for(int i = 0; i < NUM_DIR_LIGHTS; i++) {
+    for(int i = 0; i < num_dir_lights; i++) {
         result += CalcDirLight(dirLights[i], norm, viewDir);
     }
 
-    for(int i = 0; i < NUM_POINT_LIGHTS; i++) {
+    for(int i = 0; i < num_point_lights; i++) {
         result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);
     }
 
-    for(int i = 0; i < NUM_SPOT_LIGHTS; i++) {
+    for(int i = 0; i < num_spot_lights; i++) {
         result += CalcSpotLight(spotLights[i], norm);
     }
 
