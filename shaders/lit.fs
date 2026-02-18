@@ -5,6 +5,10 @@ in vec3 Normal;
 in vec3 FragPos;
 in vec2 TexCoords;
 
+#define NUM_DIR_LIGHTS 1
+#define NUM_POINT_LIGHTS 4
+#define NUM_SPOT_LIGHTS 1
+
 struct Material {
     sampler2D diffuse;
     sampler2D specular;
@@ -20,7 +24,7 @@ struct DirLight
     vec3 diffuse;
     vec3 specular;
 };
-uniform DirLight dirLight;
+uniform DirLight dirLights[NUM_DIR_LIGHTS];
 
 struct PointLight
 {
@@ -34,8 +38,7 @@ struct PointLight
     vec3 diffuse;
     vec3 specular;
 };
-#define NR_POINT_LIGHTS 4
-uniform PointLight pointLights[NR_POINT_LIGHTS];
+uniform PointLight pointLights[NUM_POINT_LIGHTS];
 
 struct SpotLight {
     vec3 position;
@@ -47,7 +50,7 @@ struct SpotLight {
     vec3 diffuse;
     vec3 specular;
 };
-uniform SpotLight spotLight;
+uniform SpotLight spotLights[NUM_SPOT_LIGHTS];
 
 uniform vec3 tint = vec3(1.0);
 uniform vec3 viewPos;
@@ -61,13 +64,19 @@ void main()
     vec3 norm = normalize(Normal);
     vec3 viewDir = normalize(viewPos - FragPos);
 
-    vec3 result = CalcDirLight(dirLight, norm, viewDir);
+    vec3 result = vec3(0.0);
 
-    for(int i = 0; i < NR_POINT_LIGHTS; i++) {
+    for(int i = 0; i < NUM_DIR_LIGHTS; i++) {
+        result += CalcDirLight(dirLights[i], norm, viewDir);
+    }
+
+    for(int i = 0; i < NUM_POINT_LIGHTS; i++) {
         result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);
     }
 
-    result += CalcSpotLight(spotLight, norm);
+    for(int i = 0; i < NUM_SPOT_LIGHTS; i++) {
+        result += CalcSpotLight(spotLights[i], norm);
+    }
 
     FragColor = vec4(result, 1.0);
 }

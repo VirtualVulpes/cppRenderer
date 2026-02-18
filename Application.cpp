@@ -143,37 +143,42 @@ void Application::CreateFloorMesh(Renderable* renderable) const {
 }
 
 void Application::CreateLight(Shader* lit, Light::LightType type, glm::vec3 color, float intensity, Transform t) const {
-  static int numPoints{0};
+  static int num_dir_lights{0};
+  static int num_point_lights{0};
+  static int num_spot_lights{0};
+
   lit->Use();
 
   switch (type) {
     case Light::Directional:
-      lit->SetVec3("dirLight.direction", t.rotation);
-      lit->SetVec3("dirLight.ambient", color * intensity * 0.02f);
-      lit->SetVec3("dirLight.diffuse", color * intensity * 0.1f);
-      lit->SetVec3("dirLight.specular", color * intensity * 0.2f);
+      lit->SetVec3(std::format("dirLights[{}].direction", num_dir_lights), t.rotation);
+      lit->SetVec3(std::format("dirLights[{}].ambient", num_dir_lights), color * intensity * 0.02f);
+      lit->SetVec3(std::format("dirLights[{}].diffuse", num_dir_lights), color * intensity * 0.1f);
+      lit->SetVec3(std::format("dirLights[{}].specular", num_dir_lights), color * intensity * 0.2f);
+      num_dir_lights++;
       renderer_->directional_lights_.push_back(std::make_unique<Light::DirectionalLight>(t.rotation, color, intensity));
       return;
     case Light::Point:
-      lit->SetVec3(std::format("pointLights[{}].position", numPoints), t.pos);
-      lit->SetFloat(std::format("pointLights[{}].constant", numPoints), 1.0f);
-      lit->SetFloat(std::format("pointLights[{}].linear", numPoints), 0.09f);
-      lit->SetFloat(std::format("pointLights[{}].quadratic", numPoints), 0.032f);
-      lit->SetVec3(std::format("pointLights[{}].ambient", numPoints), color * intensity * 0.2f);
-      lit->SetVec3(std::format("pointLights[{}].diffuse", numPoints), color * intensity);
-      lit->SetVec3(std::format("pointLights[{}].specular", numPoints), color * intensity);
-      numPoints += 1;
+      lit->SetVec3(std::format("pointLights[{}].position", num_point_lights), t.pos);
+      lit->SetFloat(std::format("pointLights[{}].constant", num_point_lights), 1.0f);
+      lit->SetFloat(std::format("pointLights[{}].linear", num_point_lights), 0.09f);
+      lit->SetFloat(std::format("pointLights[{}].quadratic", num_point_lights), 0.032f);
+      lit->SetVec3(std::format("pointLights[{}].ambient", num_point_lights), color * intensity * 0.2f);
+      lit->SetVec3(std::format("pointLights[{}].diffuse", num_point_lights), color * intensity);
+      lit->SetVec3(std::format("pointLights[{}].specular", num_point_lights), color * intensity);
+      num_point_lights++;
       t.scale *= intensity;
       renderer_->point_lights_.push_back(std::make_unique<Light::PointLight>(t, color, intensity, 5.0f));
       return;
     case Light::Spot:
-      lit->SetVec3("spotLight.position", t.pos);
-      lit->SetVec3("spotLight.direction", t.rotation);
-      lit->SetFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
-      lit->SetFloat("spotLight.outerCutOff", glm::cos(glm::radians(17.5f)));
-      lit->SetVec3("spotLight.ambient", color * intensity * 0.2f);
-      lit->SetVec3("spotLight.diffuse", color * intensity);
-      lit->SetVec3("spotLight.specular", color * intensity);
+      lit->SetVec3(std::format("spotLights[{}].position", num_spot_lights), t.pos);
+      lit->SetVec3(std::format("spotLights[{}].direction", num_spot_lights), t.rotation);
+      lit->SetFloat(std::format("spotLights[{}].cutOff", num_spot_lights), glm::cos(glm::radians(12.5f)));
+      lit->SetFloat(std::format("spotLights[{}].outerCutOff", num_spot_lights), glm::cos(glm::radians(17.5f)));
+      lit->SetVec3(std::format("spotLights[{}].ambient", num_spot_lights), color * intensity * 0.2f);
+      lit->SetVec3(std::format("spotLights[{}].diffuse", num_spot_lights), color * intensity);
+      lit->SetVec3(std::format("spotLights[{}].specular", num_spot_lights), color * intensity);
+      num_spot_lights++;
       t.scale *= intensity;
       renderer_->spot_lights_.push_back(std::make_unique<Light::SpotLight>(t, color, intensity));
       return;
