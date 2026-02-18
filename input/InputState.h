@@ -23,8 +23,8 @@ struct InputState {
   Keys lastKeys;
 
   struct Mouse {
-    float x_pos{0};
-    float y_pos{0};
+    double x_pos{0};
+    double y_pos{0};
   };
   Mouse mouse;
   Mouse lastMouse;

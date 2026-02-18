@@ -6,7 +6,7 @@ struct DebugSettings {
 };
 
 struct RenderSettings {
-  bool drawTextures{false};
+  bool drawTextures{true};
   bool drawWireframe{false};
   DebugSettings debug;
 };

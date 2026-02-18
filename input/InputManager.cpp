@@ -42,14 +42,8 @@ InputState::Keys InputManager::GetKeyInput(const Window& window) const {
 InputState::Mouse InputManager::GetMouseInput(const Window& window) {
   GLFWwindow *window_handle = window.GetHandle();
 
-  double x_pos{};
-  double y_pos{};
-  glfwGetCursorPos(window_handle, &x_pos, &y_pos);
-
   InputState::Mouse input{};
-
-  input.x_pos = x_pos;
-  input.y_pos = y_pos;
+  glfwGetCursorPos(window_handle, &input.x_pos, &input.y_pos);
 
   return input;
 }
