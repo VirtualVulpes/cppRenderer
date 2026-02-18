@@ -45,30 +45,29 @@ void Renderer::PreDrawPass(Camera& camera) const {
 }
 
 void Renderer::DrawPass() const {
-  if (settings_.drawWireframe) {
+  if (settings_.drawWireframe)
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-  } else {
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  }
 
   for ( const auto& object : game_objects_) {
     Draw(*object->renderable, object->transform);
   }
 
-  if (!settings_.debug.drawLights) return;
+  if (settings_.debug.drawLights) {
+    Shader* unlit = context_.shaders.GetPointer("unlit");
+    unlit->Use();
 
-  Shader* unlit = context_.shaders.GetPointer("unlit");
-  unlit->Use();
+    for (const auto& light : point_lights_) {
+      unlit->SetVec3("tint", light->color);
+      Draw(light_debug_, light->transform);
+    }
 
-  for (const auto& light : point_lights_) {
-    unlit->SetVec3("tint", light->color);
-    Draw(light_debug_, light->transform);
+    for (const auto& light : spot_lights_) {
+      unlit->SetVec3("tint", light->color);
+      Draw(light_debug_, light->transform);
+    }
   }
 
-  for (const auto& light : spot_lights_) {
-    unlit->SetVec3("tint", light->color);
-    Draw(light_debug_, light->transform);
-  }
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
 void Renderer::PostDrawPass(const Camera& camera) const {

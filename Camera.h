@@ -3,7 +3,7 @@
 
 #include <glm/glm.hpp>
 
-#include "InputState.h"
+#include "input/InputState.h"
 
 struct InputState;
 
@@ -15,7 +15,7 @@ public:
   glm::mat4 GetProjectionMatrix() const;
   glm::vec3 GetPosition() const { return pos_; }
 
-  void Update(const InputState &input, float delta_time);
+  void Update(const InputState& input, float delta_time);
   void MarkProjectionDirty();
   bool IsProjectionDirty() const { return is_projection_dirty_; }
   void ClearProjectionDirtyFlag() { is_projection_dirty_ = false; }
@@ -42,8 +42,8 @@ private:
   bool is_projection_dirty_{true};
 
   void UpdateCameraVectors();
-  void MoveCamera(const InputState::Keys &input, float delta_time);
-  void RotateCamera(const InputState::Mouse &input);
+  void MoveCamera(const InputState::Keys& input, float delta_time);
+  void RotateCamera(const InputState& input);
 };
 
 #endif

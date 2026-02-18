@@ -11,7 +11,7 @@
 #include "renderer/Framebuffer.h"
 #include "GameObject.h"
 #include "Geometry.h"
-#include "InputManager.h"
+#include "input/InputManager.h"
 #include "Light.h"
 #include "Renderable.h"
 #include "renderer/Mesh.h"
@@ -19,22 +19,15 @@
 #include "renderer/Texture.h"
 #include "WindowContext.h"
 
-constexpr int kInitialWidth{1280};
-constexpr int kInitialHeight{720};
-
 void CreateFloorMesh(Renderable* renderable);
 void CreateLight(const Shader& lit, Light::LightType type, glm::vec3 color, float strength, Transform t);
 
-Application::Application() {
-  if (!glfwInit())
-    throw std::runtime_error("Failed to initialize GLFW");
-
-  window_ = std::make_unique<Window>(kInitialWidth, kInitialHeight, "Render Window");
-
-  if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress))
-    throw std::runtime_error("Failed to initialize GLAD");
+Application::Application(Window& window)
+  : window_(&window)
+  , input_manager_(key_bindings_) {
 
   InitializeResources();
+  InitializeKeybinds();
 
   RenderContext context{mesh_handler_, texture_handler_, material_handler_, shader_handler_};
   Renderable light_rend{mesh_handler_.GetId("cube"), material_handler_.GetId("light")};
@@ -44,15 +37,14 @@ Application::Application() {
 }
 
 void Application::Run() {
-  int width{kInitialWidth};
-  int height{kInitialHeight};
+  int width{};
+  int height{};
+  glfwGetFramebufferSize(window_->GetHandle(), &width, &height);
 
-  Camera camera{glm::vec3(2.0f, 1.0f, 8.0f), 0.0f, -90.0f, static_cast<float>(kInitialWidth)/kInitialHeight};
+  Camera camera{glm::vec3(2.0f, 1.0f, 8.0f), 0.0f, -90.0f, static_cast<float>(width)/height};
 
   WindowContext context{&camera};
   glfwSetWindowUserPointer(window_->GetHandle(), &context);
-
-  InputManager input_manager{};
 
   Renderable dirt_rend{mesh_handler_.GetId("cube"), material_handler_.GetId("dirt")};
   Renderable iron_rend{mesh_handler_.GetId("cube"), material_handler_.GetId("iron")};
@@ -94,12 +86,8 @@ void Application::Run() {
     delta_time = current_frame - last_frame;
     last_frame = current_frame;
 
-    InputState input = input_manager.GetInput(*window_);
-    if (input.keys.escape)
-      Close();
+    HandleInput(camera, delta_time);
 
-
-    camera.Update(input, delta_time);
     if (camera.IsProjectionDirty()) {
       glfwGetFramebufferSize(window_->GetHandle(), &width, &height);
       framebuffer.Resize(width, height);
@@ -213,4 +201,33 @@ void Application::InitializeResources() {
   material_handler_.Create("iron", shader_handler_.GetId("lit"), texture_handler_.GetId("iron_block"), texture_handler_.GetId("iron_block_s"));
   material_handler_.Create("grass", shader_handler_.GetId("lit"), texture_handler_.GetId("grass_block_top"), texture_handler_.GetId("black"));
   material_handler_.Create("light", shader_handler_.GetId("unlit"), texture_handler_.GetId("white"), texture_handler_.GetId("white"));
+}
+
+void Application::InitializeKeybinds() {
+  key_bindings_.keyboard.emplace(Action::MoveForward, GLFW_KEY_W);
+  key_bindings_.keyboard.emplace(Action::MoveBackward, GLFW_KEY_S);
+  key_bindings_.keyboard.emplace(Action::MoveRight, GLFW_KEY_D);
+  key_bindings_.keyboard.emplace(Action::MoveLeft, GLFW_KEY_A);
+  key_bindings_.keyboard.emplace(Action::MoveUp, GLFW_KEY_SPACE);
+  key_bindings_.keyboard.emplace(Action::MoveDown, GLFW_KEY_LEFT_SHIFT);
+
+  key_bindings_.keyboard.emplace(Action::ToggleWireframe, GLFW_KEY_Z);
+  key_bindings_.keyboard.emplace(Action::ToggleLightDebug, GLFW_KEY_X);
+  key_bindings_.keyboard.emplace(Action::ToggleDrawTextures, GLFW_KEY_C);
+
+  key_bindings_.keyboard.emplace(Action::Quit, GLFW_KEY_ESCAPE);
+}
+
+void Application::HandleInput(Camera& camera, float delta_time) {
+  InputState input = input_manager_.GetInput(*window_);
+  if (input_manager_.IsJustPressed(&InputState::Keys::quit))
+    Close();
+  if (input_manager_.IsJustPressed(&InputState::Keys::toggleLightDebug))
+    render_settings_.debug.drawLights = !render_settings_.debug.drawLights;
+  if (input_manager_.IsJustPressed(&InputState::Keys::toggleWireframe))
+    render_settings_.drawWireframe = !render_settings_.drawWireframe;
+  if (input_manager_.IsJustPressed(&InputState::Keys::toogleDrawTextures))
+    render_settings_.drawTextures = !render_settings_.drawTextures;
+
+  camera.Update(input, delta_time);
 }

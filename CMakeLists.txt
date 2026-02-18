@@ -19,11 +19,11 @@ add_executable(cppRenderer
         stb_image.h
         Camera.cpp
         Camera.h
-        InputState.h
+        input/InputState.h
         Window.cpp
         Window.h
-        InputManager.cpp
-        InputManager.h
+        input/InputManager.cpp
+        input/InputManager.h
         renderer/Renderer.cpp
         renderer/Renderer.h
         renderer/Mesh.cpp
@@ -48,6 +48,8 @@ add_executable(cppRenderer
         RenderContext.h
         ResourceHandler.h
         Settings.h
+        input/Action.h
+        input/KeyBindings.h
 )
 
 # Link GLAD and GLFW

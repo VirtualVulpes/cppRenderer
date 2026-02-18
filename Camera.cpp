@@ -24,10 +24,10 @@ glm::mat4 Camera::GetProjectionMatrix() const {
 
 void Camera::Update(const InputState &input, float delta_time) {
   MoveCamera(input.keys, delta_time);
-  RotateCamera(input.mouse);
+  RotateCamera(input);
 }
 
-void Camera::MoveCamera(const InputState::Keys &input, float delta_time) {
+void Camera::MoveCamera(const InputState::Keys& input, float delta_time) {
   glm::vec3 movement{};
 
   if (input.forward)  movement += front_;
@@ -41,9 +41,9 @@ void Camera::MoveCamera(const InputState::Keys &input, float delta_time) {
     pos_ += glm::normalize(movement) * delta_time * speed_;
 }
 
-void Camera::RotateCamera(const InputState::Mouse &input) {
-  float x_offset = input.x_pos - input.x_last;
-  float y_offset = input.y_pos - input.y_last;
+void Camera::RotateCamera(const InputState& input) {
+  float x_offset = input.mouse.x_pos - input.lastMouse.x_pos;
+  float y_offset = input.mouse.y_pos - input.lastMouse.y_pos;
 
   yaw_ += x_offset * sensitivity_;
   pitch_ -= y_offset * sensitivity_;

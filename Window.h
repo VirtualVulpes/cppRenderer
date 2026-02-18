@@ -9,7 +9,6 @@
 class Window {
 public:
   Window(int width, int height, std::string_view title);
-  ~Window();
 
   void SetMouseCallback(GLFWcursorposfun callback) const;
   void SetScrollCallback(GLFWcursorposfun callback) const;

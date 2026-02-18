@@ -3,23 +3,30 @@
 
 struct InputState {
   struct Keys {
+    // Movement
     bool forward{false};
     bool backward{false};
     bool right{false};
     bool left{false};
     bool up{false};
     bool down{false};
-    bool escape{false};
+
+    //Settings
+    bool toggleWireframe{false};
+    bool toggleLightDebug{false};
+    bool toogleDrawTextures{false};
+
+    bool quit{false};
   };
   Keys keys;
+  Keys lastKeys;
 
   struct Mouse {
     float x_pos{0};
-    float x_last{0};
     float y_pos{0};
-    float y_last{0};
   };
   Mouse mouse;
+  Mouse lastMouse;
 };
 
 #endif

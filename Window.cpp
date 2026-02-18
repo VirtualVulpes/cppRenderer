@@ -27,10 +27,6 @@ Window::Window(int width, int height, std::string_view title)
   glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
-Window::~Window() {
-  glfwTerminate();
-}
-
 void Window::SetActive() const {
   glfwMakeContextCurrent(window_);
 }
