@@ -1,9 +1,9 @@
 #include "Application.h"
 
 #include <format>
-#define STB_IMAGE_IMPLEMENTATION
 #include <iostream>
 
+#define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
 #include "Camera.h"
@@ -27,7 +27,7 @@ Application::Application()
   : window_(std::make_unique<Window>(WindowCoordinates{1280, 720, 200, 200}, "Render Window"))
   , input_manager_(key_bindings_) {
 
-  if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress))
+  if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
     throw std::runtime_error("Failed to initialize GLAD");
 
   InitializeResources();
@@ -61,10 +61,6 @@ void Application::Run() {
   WindowContext context{&camera};
   glfwSetWindowUserPointer(window_->GetHandle(), &context);
 
-  Renderable dirt_rend{mesh_handler_.GetId("cube"), material_handler_.GetId("dirt")};
-  Renderable iron_rend{mesh_handler_.GetId("cube"), material_handler_.GetId("iron")};
-  Renderable grass_rend{mesh_handler_.GetId("plane"), material_handler_.GetId("grass")};
-
   Transform t = {{0.0, 0.0, 0.0}, {1.0f, -1.0f, 1.0f}, {0.0, 0.0, 0.0}};
   CreateLight(shader_handler_.GetPointer("lit"), Light::kDirectional, Color::White, 1, t);
   t = {{5.0, 3.0, 5.0}, {0.0f, 0.0f, 0.0f}, {0.2, 0.2, 0.2}};
@@ -77,6 +73,10 @@ void Application::Run() {
   CreateLight(shader_handler_.GetPointer("lit"), Light::kPoint, Color::Green, 0.6, t);
   t = {{8.0, 4.0, 8.0}, {-0.2f, -1.0f, -0.6f}, {0.2, 0.2, 0.2}};
   CreateLight(shader_handler_.GetPointer("lit"), Light::kSpot, Color::White, 0.8, t);
+
+  Renderable dirt_rend{mesh_handler_.GetId("cube"), material_handler_.GetId("dirt")};
+  Renderable iron_rend{mesh_handler_.GetId("cube"), material_handler_.GetId("iron")};
+  Renderable grass_rend{mesh_handler_.GetId("plane"), material_handler_.GetId("grass")};
 
   // dirt cube
   t = {glm::vec3(8.0f, 0.0f, 9.0f)};
@@ -131,8 +131,8 @@ void Application::Close() {
 }
 
 void Application::CreateFloorMesh(Renderable* renderable) const {
-  int width{16};
-  int length{16};
+  constexpr int length{16};
+  constexpr int width{16};
 
   for (int z = 0; z < length; ++z) {
     for (int x = 0; x < width; ++x) {
@@ -185,27 +185,28 @@ void Application::InitializeResources() {
   mesh_handler_.Create("plane", Geometry::Plane{});
 
   TextureLoader::LoadFromFolder("textures/", texture_handler_);
-  texture_handler_.GetPointer("noises")->Bind(0);
-  texture_handler_.GetPointer("noises")->SetParameter(GL_TEXTURE_WRAP_S, GL_REPEAT);
-  texture_handler_.GetPointer("noises")->SetParameter(GL_TEXTURE_WRAP_T, GL_REPEAT);
-  texture_handler_.GetPointer("noises")->SetParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  texture_handler_.GetPointer("noises")->SetParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  const Texture* noises = texture_handler_.GetPointer("noises");
+  noises->Bind(0);
+  noises->SetParameter(GL_TEXTURE_WRAP_S, GL_REPEAT);
+  noises->SetParameter(GL_TEXTURE_WRAP_T, GL_REPEAT);
+  noises->SetParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  noises->SetParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   shader_handler_.Create("lit", "shaders/shader.vs", "shaders/lit.fs");
   shader_handler_.Create("unlit", "shaders/shader.vs", "shaders/unlit.fs");
   shader_handler_.Create("clouds", "shaders/clouds.vs", "shaders/clouds.fs");
 
-  Shader* lit = shader_handler_.GetPointer("lit");
+  const Shader* lit = shader_handler_.GetPointer("lit");
   lit->Use();
   lit->SetInt("material.diffuse", 0);
   lit->SetInt("material.specular", 1);
   lit->SetFloat("material.shininess", 32.0f);
 
-  Shader* unlit = shader_handler_.GetPointer("unlit");
+  const Shader* unlit = shader_handler_.GetPointer("unlit");
   unlit->Use();
   unlit->SetInt("material.diffuse", 0);
 
-  Shader* clouds = shader_handler_.GetPointer("clouds");
+  const Shader* clouds = shader_handler_.GetPointer("clouds");
   clouds->Use();
   clouds->SetInt("screenTexture", 0);
   clouds->SetInt("depthTexture", 1);
@@ -235,7 +236,7 @@ void Application::InitializeKeybinds() {
 }
 
 void Application::HandleInput(Camera& camera, float delta_time) {
-  InputState input = input_manager_.GetInput(*window_);
+  const InputState input = input_manager_.GetInput(*window_);
   if (input_manager_.IsJustPressed(&InputState::Keys::quit))
     Close();
   if (input_manager_.IsJustPressed(&InputState::Keys::toggleLightDebug))
