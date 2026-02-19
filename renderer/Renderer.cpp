@@ -1,7 +1,5 @@
 #include "Renderer.h"
 
-#include <iostream>
-
 #include "glad/glad.h"
 #include <GL/gl.h>
 
@@ -14,7 +12,6 @@ Renderer::Renderer(RenderContext context, Renderable light_debug, const RenderSe
   , settings_(settings) {
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_MULTISAMPLE);
-  glEnable(GL_SAMPLE_ALPHA_TO_COVERAGE);
 }
 
 void Renderer::Clear() {
@@ -48,12 +45,15 @@ void Renderer::DrawPass() {
   if (settings_.drawWireframe)
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+  // Opaque Drawing
   for ( const auto& object : game_objects_) {
     if (object->renderable->type == RenderType::Opaque)
       Draw(*object->renderable, object->transform);
   }
 
+  // Cutout Drawing
   DisableBackCull();
+  glEnable(GL_SAMPLE_ALPHA_TO_COVERAGE);
 
   for ( const auto& object : game_objects_) {
     if (object->renderable->type == RenderType::Cutout)
@@ -61,6 +61,7 @@ void Renderer::DrawPass() {
   }
 
   EnableBackCull();
+  glDisable(GL_SAMPLE_ALPHA_TO_COVERAGE);
 
   if (settings_.debug.drawLights) {
     Shader* unlit = context_.shaders.GetPointer("unlit");
@@ -86,6 +87,27 @@ void Renderer::PostDrawPass(const Camera& camera) {
   clouds->Use();
   clouds->SetMat4("viewMatrix", camera.GetViewMatrix());
   clouds->SetVec3("cameraPos", camera.GetPosition());
+
+  glDepthMask(GL_FALSE);
+  Mesh screen_quad{Geometry::Quad{}};
+  screen_quad.Draw();
+  glDepthMask(GL_TRUE);
+}
+
+void Renderer::TransparentDrawPass() {
+  if (settings_.drawWireframe)
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  for (const auto& object : game_objects_) {
+    if (object->renderable->type == RenderType::Transparent)
+      Draw(*object->renderable, object->transform);
+  }
+
+  glDisable(GL_BLEND);
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
 void Renderer::Draw(const Renderable& renderable, const Transform& transform) const {

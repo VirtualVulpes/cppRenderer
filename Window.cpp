@@ -44,12 +44,16 @@ float Window::GetAspectRatio() const {
 }
 
 void Window::FramebufferSizeCallback(GLFWwindow *window, const int width, const int height) {
-  const auto* context = static_cast<WindowContext*>(glfwGetWindowUserPointer(window));
+  if (width <= 0 || height <= 0) return;
+
+  auto* context = static_cast<WindowContext*>(glfwGetWindowUserPointer(window));
   if (!context) return;
 
   glViewport(0, 0, width, height);
   context->camera->SetAspectRatio(static_cast<float>(width) / height);
   context->camera->MarkProjectionDirty();
+
+  context->framebuffer->Resize(width, height);
 }
 
 void Window::SetMouseCallback(GLFWcursorposfun callback) const {

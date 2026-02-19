@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 
+#include "Framebuffer.h"
 #include "../Camera.h"
 #include "../GameObject.h"
 #include "../Light.h"
@@ -19,6 +20,7 @@ public:
   void PreDrawPass(Camera& camera);
   void DrawPass();
   void PostDrawPass(const Camera& camera);
+  void TransparentDrawPass();
 
   void EnableBackCull() { glEnable(GL_CULL_FACE); }
   void DisableBackCull() { glDisable(GL_CULL_FACE); }

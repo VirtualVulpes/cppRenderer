@@ -145,6 +145,5 @@ void main()
     }
 
     FragColor = sceneColor;
-    //FragColor = texture(screenTexture, TexCoords);
 }
 

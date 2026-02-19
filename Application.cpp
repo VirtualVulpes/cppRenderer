@@ -58,7 +58,10 @@ void Application::Run() {
 
   Camera camera{glm::vec3(2.0f, 1.0f, 8.0f), 0.0f, -90.0f, static_cast<float>(width)/height};
 
-  WindowContext context{&camera};
+  Framebuffer msaa_framebuffer{width, height, true};
+  Framebuffer framebuffer{width, height, false};
+
+  WindowContext context{&camera, &framebuffer};
   glfwSetWindowUserPointer(window_->GetHandle(), &context);
 
   Transform t = {{0.0, 0.0, 0.0}, {1.0f, -1.0f, 1.0f}, {0.0, 0.0, 0.0}};
@@ -78,9 +81,10 @@ void Application::Run() {
   Renderable iron_rend{mesh_handler_.GetId("cube"), material_handler_.GetId("iron")};
   Renderable grass_rend{mesh_handler_.GetId("plane"), material_handler_.GetId("grass")};
   Renderable short_grass_rend{mesh_handler_.GetId("cross_plane"), material_handler_.GetId("short_grass"), RenderType::Cutout};
+  Renderable glass_rend{mesh_handler_.GetId("cube"), material_handler_.GetId("magenta_stained_glass"), RenderType::Transparent};
 
   // dirt cube
-  t = {glm::vec3(8.0f, 0.0f, 9.0f)};
+  t = {glm::vec3(6.0f, 0.0f, 10.0f)};
   renderer_->game_objects_.push_back(std::make_unique<GameObject>(&dirt_rend, t));
   // iron cube
   t.pos = {7.0f, 1.0f, 6.0f};
@@ -94,13 +98,14 @@ void Application::Run() {
   renderer_->game_objects_.push_back(std::make_unique<GameObject>(&short_grass_rend, t));
   t.pos = {12.0f, 0.0f, 5.0f};
   renderer_->game_objects_.push_back(std::make_unique<GameObject>(&short_grass_rend, t));
+  // glass
+  t.pos = {10.0f, 2.0f, 8.0f};
+  renderer_->game_objects_.push_back(std::make_unique<GameObject>(&glass_rend, t));
 
   float delta_time{0.0f};
   float last_frame{0.0f};
 
   Mesh screen_quad{Geometry::Quad{}};
-  Framebuffer msaa_framebuffer{width, height, true};
-  Framebuffer framebuffer{width, height, false};
 
   while (!should_close_) {
     Window::PollEvents();
@@ -121,14 +126,19 @@ void Application::Run() {
     Renderer::Clear();
     renderer_->PreDrawPass(camera);
     renderer_->DrawPass();
+
     Framebuffer::Blit(msaa_framebuffer.GetId(), framebuffer.GetId(), width, height);
-    renderer_->PostDrawPass(camera);
 
     Texture::Bind(0, framebuffer.GetColorAttachment());
     Texture::Bind(1, framebuffer.GetDepthAttachment());
     texture_handler_.GetPointer("noises")->Bind(2);
 
-    screen_quad.Draw();
+    msaa_framebuffer.Bind();
+    renderer_->PostDrawPass(camera);
+    renderer_->TransparentDrawPass();
+
+    Framebuffer::Blit(msaa_framebuffer.GetId(), framebuffer.GetId(), width, height);
+    Framebuffer::Blit(framebuffer.GetId(), 0, width, height);
 
     window_->SwapBuffers();
   }
@@ -208,6 +218,10 @@ void Application::InitializeResources() {
   noises->SetParameter(GL_TEXTURE_WRAP_T, GL_REPEAT);
   noises->SetParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   noises->SetParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  // const Texture* short_grass = texture_handler_.GetPointer("short_grass");
+  // short_grass->Bind(0);
+  // short_grass->SetParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  // short_grass->SetParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   shader_handler_.Create("lit", "shaders/shader.vs", "shaders/lit.fs");
   shader_handler_.Create("unlit", "shaders/shader.vs", "shaders/unlit.fs");
@@ -235,6 +249,7 @@ void Application::InitializeResources() {
   material_handler_.Create("grass", shader_handler_.GetId("lit"), texture_handler_.GetId("grass_block_top"), texture_handler_.GetId("black"));
   material_handler_.Create("short_grass", shader_handler_.GetId("lit"), texture_handler_.GetId("short_grass"), texture_handler_.GetId("black"));
   material_handler_.Create("light", shader_handler_.GetId("unlit"), texture_handler_.GetId("white"), texture_handler_.GetId("white"));
+  material_handler_.Create("magenta_stained_glass", shader_handler_.GetId("lit"), texture_handler_.GetId("magenta_stained_glass"), texture_handler_.GetId("black"));
 }
 
 void Application::InitializeKeybinds() {

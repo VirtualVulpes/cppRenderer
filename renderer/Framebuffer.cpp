@@ -83,14 +83,14 @@ void Framebuffer::InvalidateMsaa() {
   glGenTextures(1, &color_attachment_);
   glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, color_attachment_);
 
-  glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4 , GL_RGBA8, width_, height_, GL_TRUE);
+  glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 16, GL_RGBA8, width_, height_, GL_TRUE);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, color_attachment_, 0);
 
   // Depth
   glGenTextures(1, &depth_attachment_);
   glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, depth_attachment_);
 
-  glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_DEPTH_COMPONENT24, width_, height_, GL_TRUE);
+  glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 16, GL_DEPTH_COMPONENT24, width_, height_, GL_TRUE);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D_MULTISAMPLE, depth_attachment_, 0);
 
   if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -112,17 +112,14 @@ void Framebuffer::Resize(int width, int height) {
 
 void Framebuffer::Bind() const {
   glBindFramebuffer(GL_FRAMEBUFFER, fbo_);
-  glEnable(GL_DEPTH_TEST);
 }
 
 void Framebuffer::Unbind() {
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  glDisable(GL_DEPTH_TEST);
 }
 
 void Framebuffer::Blit(int read_id, int write_id, int width, int height) {
   glBindFramebuffer(GL_READ_FRAMEBUFFER, read_id);
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, write_id);
   glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-  Unbind();
 }
