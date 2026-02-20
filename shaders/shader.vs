@@ -8,6 +8,8 @@ out vec3 Normal;
 out vec2 TexCoords;
 out vec3 FragPos;
 
+out vec4 ClipPos;
+
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
@@ -15,6 +17,7 @@ uniform mat4 projection;
 void main()
 {
     gl_Position = projection * view * model * vec4(aPos, 1.0);
+    ClipPos = gl_Position;
     Normal = mat3(transpose(inverse(model))) * aNormal;
     TexCoords = vec2(aTexCoord.x, aTexCoord.y);
     // model -> world pos

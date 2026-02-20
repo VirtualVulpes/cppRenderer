@@ -4,6 +4,7 @@ out vec4 FragColor;
 in vec3 Normal;
 in vec3 FragPos;
 in vec2 TexCoords;
+in vec4 ClipPos;
 
 #define MAX_NUM_DIR_LIGHTS 10
 #define MAX_NUM_POINT_LIGHTS 10
@@ -62,6 +63,8 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir);
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 vec3 CalcSpotLight(SpotLight light, vec3 normal);
 
+uniform sampler2D sceneColor;
+
 void main()
 {
     vec3 norm = normalize(Normal);
@@ -83,6 +86,19 @@ void main()
 
     FragColor.rgb = result;
     FragColor.a = texture(material.diffuse, TexCoords).a;
+
+    vec2 screenPos = vec2((ClipPos.x / ClipPos.w + 1) / 2, (ClipPos.y / ClipPos.w + 1) / 2);
+
+    vec3 preColor = texture(sceneColor, screenPos).rgb;
+    float depth = texture(sceneColor, screenPos).a;
+
+    float ndc = gl_FragCoord.z * 2.0 - 1.0;
+    float linearDepth = (2.0 * 0.1 * 1000.0) / (1000 + 0.1 - ndc * (1000 - 0.1));
+
+    if(depth > 0.0 && depth < linearDepth)
+        FragColor.rgb = vec3(1.0, 0.0, 0.0);
+    else
+        FragColor.rgb = result;
 }
 
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)

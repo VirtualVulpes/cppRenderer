@@ -135,6 +135,10 @@ void Application::Run() {
 
     msaa_framebuffer.Bind();
     renderer_->PostDrawPass(camera);
+
+    Framebuffer::Blit(msaa_framebuffer.GetId(), framebuffer.GetId(), width, height);
+    msaa_framebuffer.Bind();
+    Texture::Bind(2, framebuffer.GetColorAttachment());
     renderer_->TransparentDrawPass();
 
     Framebuffer::Blit(msaa_framebuffer.GetId(), framebuffer.GetId(), width, height);
@@ -231,6 +235,7 @@ void Application::InitializeResources() {
   lit->Use();
   lit->SetInt("material.diffuse", 0);
   lit->SetInt("material.specular", 1);
+  lit->SetInt("sceneColor", 2);
   lit->SetFloat("material.shininess", 32.0f);
 
   const Shader* unlit = shader_handler_.GetPointer("unlit");

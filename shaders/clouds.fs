@@ -109,6 +109,8 @@ void main()
     float ndc = rawDepth * 2.0 - 1.0;
     float linearDepth = (2.0 * zPlanes.x * zPlanes.y) / (zPlanes.y + zPlanes.x - ndc * (zPlanes.y - zPlanes.x));
 
+    float depth = 0.0;
+
     if (intersection(ro, rd, tEnter, tExit))
     {
         float jitter = fract(sin(dot(TexCoords * gl_FragCoord.xy, vec2(12.9898,78.233))) * 43758.5453);
@@ -124,6 +126,7 @@ void main()
 
         for (int i = 0; i < maxSteps; i++)
         {
+            bool firstHit = false;
             vec3 pos = startPos + vec3(i + jitter) * rd * stepSize;
             if (abs(distance(ro, pos)) > linearDepth) break;
 
@@ -131,6 +134,11 @@ void main()
             float extinction = density * stepSize * absorption;
 
             if (extinction < 1e-4) continue;
+
+            if(!firstHit)
+                depth = abs(distance(startPos, pos)) / zPlanes.y\;
+
+            firstHit = true;
 
             float light = lightMarch(pos);
 
@@ -142,8 +150,10 @@ void main()
         }
 
         sceneColor.rgb = sceneColor.rgb * transmittance + scatteredLight;
+
     }
 
+    sceneColor.a = depth;
     FragColor = sceneColor;
 }
 
